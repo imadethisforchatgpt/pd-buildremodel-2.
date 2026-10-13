@@ -53,6 +53,9 @@ async function run(){
   await mobile.screenshot({path:'qa-screenshots/after-iphone.png',fullPage:true});
   await mobile.locator('#pdMoreToggle').click();
   assert.equal(await mobile.locator('#pdMoreMenu').isVisible(),true);
+  const menuGeometry=await mobile.locator('#pdMoreMenu').evaluate(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,height:r.height,viewportHeight:innerHeight,viewportWidth:innerWidth,position:s.position,display:s.display,opacity:s.opacity,zIndex:s.zIndex,parent:el.parentElement?.getBoundingClientRect().toJSON()}});
+  log('More menu geometry: '+JSON.stringify(menuGeometry));
+  assert.ok(menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight&&menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth,'More menu not fully inside iPhone viewport');
   assert.equal(await mobile.locator('#pdMoreMenu [data-pd-extra="Projects"]').count(),1);
   await mobile.screenshot({path:'qa-screenshots/after-iphone-more-menu.png',fullPage:false});
   log('Mobile navigation and overflow checks passed');
