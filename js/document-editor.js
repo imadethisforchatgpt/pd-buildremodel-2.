@@ -99,6 +99,7 @@ previewDraft=function(){
  const existing=document.getElementById('draftPreview');if(existing){existing.remove();return}
  oldPreview();
  PDEditor.hydrate(document.getElementById('draftPreview'));
+ const pane=document.getElementById('draftPreview');if(pane){const back=document.createElement('button');back.type='button';back.className='btn';back.textContent='← Return to Editing';back.onclick=()=>{pane.remove();document.getElementById('pdBlockEditor')?.scrollIntoView({behavior:'smooth',block:'start'})};pane.insertBefore(back,pane.firstChild)}
 };
 const oldHTML=documentHTML;
 documentHTML=function(type,x,i){
