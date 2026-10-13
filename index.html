@@ -205,7 +205,7 @@ const pdOldAddClient=addClient;
 addClient=function(){
  const name=document.getElementById('cname')?.value.trim();if(!name)return alert('Enter a customer name');
  const email=document.getElementById('cemail')?.value.trim()||'';
- if(email&&!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))return alert('Enter a valid email address');
+ if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return alert('Enter a valid email address');
  const item={name,phone:document.getElementById('cphone')?.value.trim()||'',email,address:document.getElementById('caddress')?.value.trim()||'',notes:document.getElementById('cnotes')?.value.trim()||''};
  if(pdEditingClient!==null){db.clients[pdEditingClient]={...db.clients[pdEditingClient],...item};pdEditingClient=null;save();render()}else{db.clients.push(item);save();render()}
 };
