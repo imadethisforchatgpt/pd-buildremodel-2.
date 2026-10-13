@@ -7,8 +7,9 @@
   const DEFAULT_PREPARER = 'Papo Delvalle';
   function profileName() {
     // A previously saved owner preference always takes precedence over the default.
-    return typeof db.businessProfile?.preparedBy === 'string'
-      ? db.businessProfile.preparedBy.trim() : DEFAULT_PREPARER;
+    const saved = typeof db.businessProfile?.preparedBy === 'string'
+      ? db.businessProfile.preparedBy.trim() : '';
+    return saved || DEFAULT_PREPARER;
   }
   function displayName(record) {
     return (typeof record?.preparedBy === 'string' && record.preparedBy.trim()) || profileName();
