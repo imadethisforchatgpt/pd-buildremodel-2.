@@ -1,0 +1,45 @@
+/* Calm, professional workspace visual language */
+:root{--pd-primary:#163f65;--pd-blue:#176eae;--pd-line:#e3e9ef;--pd-muted:#66798b}
+body{background:#f6f8fb!important;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;-webkit-font-smoothing:antialiased}
+header{background:#0a233c!important;border-bottom:1px solid #28445d!important;box-shadow:none!important}
+header .tag{background:#183c5a!important;color:#e4f2ff!important}
+nav#nav{background:#0a233c!important;padding:0 16px!important;overflow:visible!important;position:sticky;top:0;z-index:30;border-bottom:1px solid #244059;box-shadow:0 8px 18px #122d4510}
+.pd-nav-inner{display:flex;align-items:center;gap:4px;width:100%;max-width:1120px;margin:auto;overflow:visible}
+nav#nav .pd-nav-link{border:0!important;background:transparent!important;color:#c3d4e3!important;font-weight:650!important;font-size:13px!important;min-height:52px!important;border-radius:0!important;box-shadow:none!important;padding:12px 16px!important;position:relative}
+nav#nav .pd-nav-link.active{color:#fff!important}
+nav#nav .pd-nav-link.active:after{content:"";height:3px;position:absolute;bottom:0;left:16px;right:16px;background:#66b6ee;border-radius:3px 3px 0 0}
+nav#nav .pd-nav-link:hover{color:white!important;background:#ffffff0d!important}
+.pd-nav-more{margin-left:auto;position:relative}
+.pd-nav-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:215px;background:white;border:1px solid #dce6ee;box-shadow:0 12px 35px #0e2b452a;border-radius:12px;padding:6px;z-index:50}
+.pd-nav-menu[hidden]{display:none}
+.pd-nav-menu button{display:block;width:100%;text-align:left;background:transparent!important;border:0!important;color:#26465f!important;padding:12px!important;font-size:13px!important;min-height:43px!important;border-radius:8px!important}
+.pd-nav-menu button:hover,.pd-nav-menu button.active{background:#edf5fc!important;color:#155e94!important}
+main#main{max-width:1060px!important;padding-top:30px!important}
+main#main h1{font-size:clamp(25px,3vw,31px);font-weight:780;letter-spacing:-.8px;color:#152f47}
+main#main h2{font-weight:740;color:#183951}
+main#main .panel,main#main .stat,main#main .payment-box{border:1px solid var(--pd-line)!important;border-radius:14px!important;box-shadow:0 3px 18px #193c5c08!important}
+main#main .panel{padding:clamp(17px,3vw,26px)}
+main#main .btn{border-radius:9px!important}
+main#main .btn.primary{box-shadow:0 4px 10px #1769a823}
+main#main .muted{line-height:1.6}
+main#main .hero{border-radius:17px!important;box-shadow:none!important}
+main#main .hero h1{color:white!important}
+main#main .entry{padding:16px 0}
+main#main .pd-block-card{border:1px solid #e0e9f0;border-radius:12px;background:white;margin:12px 0;padding:15px}
+main#main .pd-block-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+main#main .pd-block-actions{display:flex;gap:5px;flex-wrap:wrap}
+main#main .pd-block-actions button{border:1px solid #dce6ef;background:#f8fafc;color:#486781;border-radius:7px}
+main#main .pd-block-image img{max-width:100%;border-radius:10px}
+main#main .pd-photo-controls{display:grid;gap:7px}
+main#main .pd-photo-controls label{margin:5px 0 0}
+main#main .pd-block-card[hidden]{display:none!important}
+main#main #pdBlockEditor{margin-top:18px}
+main#main .pd-simple-photo-tools{margin:14px 0 20px}
+main#main #pdPaymentPlan{margin:18px 0}
+main#main #pdPaymentPlan .pd-pay-summary{background:#f0f6fb!important}
+main#main #pdPaymentPlan .pd-pay-head h2{font-size:21px}
+main#main #pdPaymentPlan .pd-pay-head{margin-bottom:16px}
+main#main #pdPaymentPlan .pd-simple-payment-preview .pd-installment{box-shadow:none!important}
+main#main .pd-advanced-settings{background:#fff}
+@media(max-width:750px){header{padding:16px!important}nav#nav{padding:0 7px!important}.pd-nav-inner{gap:0}.pd-nav-inner>.pd-nav-link{flex:1;min-width:0}nav#nav .pd-nav-link{font-size:11px!important;padding:12px 6px!important;min-height:54px!important}nav#nav .pd-nav-link.active:after{left:5px;right:5px}.pd-nav-more{margin-left:0}main#main{padding:18px 12px 90px!important}main#main .panel{padding:17px!important}.pd-nav-menu{right:0}main#main .hero{padding:20px!important}main#main .pd-block-actions button{font-size:11px!important;padding:7px!important;min-height:36px!important}}
+@media(max-width:400px){nav#nav .pd-nav-link{font-size:10px!important;padding:12px 4px!important}.pd-nav-menu{right:0}}
