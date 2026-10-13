@@ -329,13 +329,122 @@ documentHTML=function(type,x,i){
  if(x.customerEmail)fields.push('<span><b>Email</b> '+esc(x.customerEmail)+'</span>');
  if(type==='invoice'&&x.dueDate)fields.push('<span><b>Due</b> '+esc(x.dueDate)+'</span>');
  if(fields.length)content=content.replace('<table class="paper-table">','<div class="pd-doc-extras">'+fields.join('')+'</div><table class="paper-table">');
- const paperCSS='<style id="pd-premium-paper-styles">'+
- '.paper{background:white!important;border:1px solid #dde7ef;box-shadow:none}.paper-top{background:#103c62!important;min-height:11px!important}.paper-inner{padding:27px!important}.paper-head{border-bottom:2px solid #dceaf4;padding-bottom:18px;margin-bottom:20px;break-inside:avoid}.paper .paper-head .doc-brand img{display:block!important;width:min(100%,400px)!important;max-width:100%!important;height:auto!important;max-height:152px!important;object-fit:contain!important;background:white!important;margin:0 auto!important}.paper .firm{color:#143955!important;font-weight:800;letter-spacing:-.5px}.paper .paper-title h2{color:#113e60!important;letter-spacing:2px!important}.paper .paper-meta{break-inside:avoid}.paper .paper-table{width:100%;border-collapse:collapse}.paper .paper-table thead th{background:#eaf3fa!important;color:#16486c!important;border-bottom:1px solid #c6dbe9!important;text-align:left}.paper .paper-table tr{break-inside:avoid}.paper .paper-table td{border-bottom:1px solid #e9eef3;vertical-align:top}.paper .paper-totals{background:#f2f8fc!important;border-radius:10px!important;padding:14px!important;margin-top:15px;break-inside:avoid}.paper .paper-foot{break-inside:avoid}.paper .pd-doc-extras{display:flex;flex-wrap:wrap;gap:8px 17px;font-size:11px;color:#45657e;margin:10px 0 19px}.paper .pd-doc-extras b{color:#143c5b;margin-right:4px}.paper img{max-width:100%}.paper .pd-doc-photo{break-inside:avoid}'+
- '@media print{@page{size:letter;margin:12mm}body{background:white!important}main{max-width:none!important;width:100%!important;padding:0!important;margin:0!important}.paper{box-shadow:none!important;border:0!important;break-inside:auto!important;overflow:visible!important}.paper-inner{padding:0!important}.paper .paper-table thead{display:table-header-group}.paper .paper-table tr{break-inside:avoid}.paper .paper-head,.paper .paper-meta,.paper .paper-totals{break-inside:avoid}.paper .paper-top,.paper .paper-table thead th,.paper .paper-totals{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'+
-  '@media print{.paper .paper-head{padding:0 0 9px!important;margin:0 0 10px!important;gap:5px!important}.paper .paper-head .doc-brand img{width:min(100%,330px)!important;max-height:118px!important}.paper .doc-brand .firm{font-size:17px!important;line-height:1.15!important}.paper .doc-brand .sub{margin-top:2px!important}.paper .paper-title h2{font-size:25px!important;letter-spacing:2px!important;margin:2px 0!important}.paper .paper-title small{font-size:11px!important}.paper .paper-meta{gap:9px!important;margin:9px 0 13px!important}.paper .paper-meta p{margin:3px 0!important;line-height:1.35!important}.paper .paper-table th,.paper .paper-table td{padding:6px 8px!important}.paper .paper-totals{padding:10px 13px!important;margin-top:9px!important}.paper .paper-totals .line{padding:4px 0!important}.paper .paper-totals .grand{margin-top:6px!important;padding-top:9px!important}.paper .paper-foot{padding:9px 0!important;margin:10px 0!important}.paper .paper-foot p{margin:4px 0!important;line-height:1.4!important}.paper .paper-top{min-height:7px!important}.paper .pd-doc-extras{margin:6px 0 11px!important}}'+
-  '@media print{.paper .paper-table{margin:10px 0!important}.paper .paper-totals .line{margin:2px 0!important;padding:2px 0!important;font-size:12px!important;line-height:1.4!important}.paper .paper-totals .grand{font-size:18px!important}.paper .paper-head .doc-brand img{width:min(100%,315px)!important;max-height:112px!important}.paper .paper-foot{margin:6px 0!important;padding:7px 0!important}.paper .paper-foot strong{margin-bottom:2px!important}.paper .paper-inner{padding:0!important}}'+
-  '@media screen and (max-width:860px){.paper .paper-table th{white-space:nowrap!important;letter-spacing:0!important;font-size:9px!important}}'+
- '</style>';
+ const paperCSS = \`<style id="pd-premium-paper-styles">
+  /* Screen previews maintain their branded, readable document layout. */
+  .paper { background: #fff !important; border: 1px solid #dde7ef; box-shadow: none; }
+  .paper .paper-top { background: #103c62 !important; }
+  .paper .paper-head { border-bottom: 2px solid #dceaf4; }
+  .paper .paper-head .doc-brand img {
+    display: block !important; width: min(100%, 400px) !important;
+    height: auto !important; max-width: 100% !important; max-height: 152px !important;
+    object-fit: contain !important; background: #fff !important; margin: 0 auto !important;
+  }
+  .paper .firm { color: #143955 !important; font-weight: 800; }
+  .paper .paper-title h2 { color: #113e60 !important; letter-spacing: 2px; }
+  .paper .pd-doc-extras { display: flex; flex-wrap: wrap; gap: 8px 17px; font-size: 12px;
+    color: #45657e; margin: 12px 0 19px; }
+  .paper .pd-doc-extras b { color: #143c5b; margin-right: 4px; }
+  .paper .paper-table { width: 100%; border-collapse: collapse; }
+  .paper .paper-table thead th { background: #eaf3fa !important; color: #16486c !important;
+    border-bottom: 1px solid #c6dbe9 !important; }
+  .paper .paper-table td { border-bottom: 1px solid #e9eef3; vertical-align: top; }
+  .paper .paper-totals { background: #f2f8fc !important; border-radius: 10px; }
+  .paper img { max-width: 100%; }
+  @media screen and (max-width: 860px) {
+    .paper .paper-table th { white-space: nowrap !important; letter-spacing: 0 !important;
+      font-size: 9px !important; }
+  }
+  /*
+    LETTER-SIZE PRINT: never shrink the entire invoice into one page.
+    Use legible type, normal-sized line items and natural page breaks.
+    Only individual rows, metadata groups and payment totals stay together.
+  */
+  @media print {
+    @page { size: letter; margin: 13mm 14mm; }
+    html, body { background: #fff !important; margin: 0 !important; padding: 0 !important;
+      width: auto !important; }
+    body > main, main { margin: 0 !important; padding: 0 !important;
+      width: 100% !important; max-width: none !important; }
+    .paper { box-sizing: border-box !important; display: block !important;
+      font-family: Arial, Helvetica, sans-serif !important;
+      font-size: 12pt !important; line-height: 1.46 !important;
+      width: 100% !important; max-width: none !important; min-width: 0 !important;
+      border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+      overflow: visible !important; break-inside: auto !important; page-break-inside: auto !important; }
+    .paper .paper-inner { padding: 0 !important; width: 100% !important;
+      max-width: none !important; overflow: visible !important; }
+    .paper .paper-top { height: 6px !important; min-height: 6px !important;
+      margin: 0 0 12px !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .paper .paper-head { display: flex !important; flex-direction: column !important;
+      align-items: center !important; gap: 6px !important;
+      margin: 0 0 17px !important; padding: 0 0 12px !important;
+      border-bottom: 2px solid #dceaf4 !important;
+      break-inside: avoid !important; page-break-inside: avoid !important; }
+    .paper .doc-brand { display: flex !important; flex-direction: column !important;
+      align-items: center !important; gap: 4px !important; text-align: center !important; }
+    .paper .paper-head .doc-brand img { display: block !important;
+      width: 365px !important; height: auto !important;
+      max-width: 100% !important; max-height: 140px !important;
+      object-fit: contain !important; margin: 0 auto !important; }
+    .paper .doc-brand .firm { font-size: 17pt !important; line-height: 1.15 !important; }
+    .paper .doc-brand .sub { font-size: 10pt !important; line-height: 1.2 !important; }
+    .paper .paper-title { text-align: center !important; }
+    .paper .paper-title h2 { margin: 3px 0 !important; font-size: 24pt !important;
+      line-height: 1.12 !important; letter-spacing: 2px !important; }
+    .paper .paper-title small { font-size: 11pt !important; color: #596f84 !important; }
+    .paper .paper-meta { display: grid !important; grid-template-columns: 1fr 1fr !important;
+      gap: 25px !important; margin: 17px 0 22px !important;
+      break-inside: avoid !important; page-break-inside: avoid !important; }
+    .paper .paper-meta .caption-label { margin: 0 0 5px !important;
+      font-size: 10pt !important; letter-spacing: 0.7px !important; }
+    .paper .paper-meta strong { font-size: 13pt !important; line-height: 1.3 !important; }
+    .paper .paper-meta p { font-size: 11.5pt !important; line-height: 1.42 !important;
+      margin: 5px 0 !important; overflow-wrap: anywhere !important; }
+    .paper .pd-doc-extras { font-size: 10.5pt !important; line-height: 1.4 !important;
+      gap: 7px 17px !important; margin: 9px 0 19px !important;
+      break-inside: avoid !important; }
+    .paper .paper-table { width: 100% !important; table-layout: fixed !important;
+      margin: 14px 0 24px !important; border-collapse: collapse !important; }
+    .paper .paper-table thead { display: table-header-group !important; }
+    .paper .paper-table tbody { display: table-row-group !important; }
+    .paper .paper-table th { font-size: 10.5pt !important; letter-spacing: .25px !important;
+      white-space: nowrap !important; padding: 11px 8px !important; line-height: 1.25 !important;
+      background: #eaf3fa !important; color: #16486c !important;
+      print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .paper .paper-table td { font-size: 11.5pt !important; line-height: 1.48 !important;
+      padding: 11px 8px !important; overflow-wrap: anywhere !important;
+      vertical-align: top !important; }
+    .paper .paper-table th:nth-child(1), .paper .paper-table td:nth-child(1) { width: 49% !important; }
+    .paper .paper-table th:nth-child(2), .paper .paper-table td:nth-child(2) { width: 11% !important; text-align: center !important; }
+    .paper .paper-table th:nth-child(3), .paper .paper-table td:nth-child(3) { width: 19% !important; text-align: right !important; }
+    .paper .paper-table th:nth-child(4), .paper .paper-table td:nth-child(4) { width: 21% !important; text-align: right !important; }
+    .paper .paper-table tbody tr { break-inside: avoid !important;
+      page-break-inside: avoid !important; }
+    .paper .paper-totals { width: 360px !important; max-width: 100% !important;
+      margin: 20px 0 22px auto !important; padding: 16px 19px !important;
+      background: #f2f8fc !important; border: 1px solid #dfeaf3 !important;
+      break-inside: avoid !important; page-break-inside: avoid !important; }
+    .paper .paper-totals .line { display: flex !important; justify-content: space-between !important;
+      font-size: 12pt !important; line-height: 1.42 !important;
+      margin: 6px 0 !important; padding: 4px 0 !important; }
+    .paper .paper-totals .grand { font-size: 17pt !important;
+      margin: 11px 0 0 !important; padding-top: 13px !important; }
+    .paper .paper-foot { font-size: 11.5pt !important; line-height: 1.52 !important;
+      margin: 20px 0 0 !important; padding: 14px 0 0 !important;
+      border-top: 1px solid #e3ebf3 !important;
+      break-inside: auto !important; overflow-wrap: anywhere !important; }
+    .paper .paper-foot strong { display: block; font-size: 12pt !important;
+      margin: 0 0 5px !important; }
+    .paper .pd-doc-heading { break-after: avoid !important; }
+    .paper .pd-doc-photo { max-width: 100% !important; break-inside: avoid !important;
+      page-break-inside: avoid !important; }
+    .paper .pd-doc-photo img { max-height: 160mm !important; object-fit: contain !important; }
+    .paper .pd-doc-photo figcaption { font-size: 10.5pt !important; }
+    .paper .paper-top, .paper .paper-table th, .paper .paper-totals {
+      print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important;
+    }
+  }
+  </style>\`;
  return paperCSS+content;
 };
 window.pdInvoiceForm=invoiceForm;
