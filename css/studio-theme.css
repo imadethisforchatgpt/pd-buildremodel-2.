@@ -1,0 +1,49 @@
+/* P&D Studio: expressive, premium business dashboard without extra controls */
+:root{--studio-ink:#11283e;--studio-blue:#0b78c9;--studio-teal:#19b6ad;--studio-border:#e2eaf2}
+body{background:radial-gradient(ellipse 70% 420px at 95% 0%,#dceefa 0%,transparent 80%),radial-gradient(ellipse 60% 440px at -15% 35%,#e7f4f5 0%,transparent 80%),#f5f8fc!important;color:var(--studio-ink)}
+header{background:#0b2035!important;padding-top:20px!important;padding-bottom:20px!important}
+header .brand{font-size:23px!important;font-weight:850!important;letter-spacing:-.8px!important;line-height:1.1}
+header .brand>span{color:#e5f2fa}
+header .brand small{margin-top:7px;color:#8eafc9!important;font-size:10px!important;letter-spacing:2px!important}
+header .tag{background:#163d58!important;border:1px solid #356481!important;color:#bde8f5!important;letter-spacing:1px;font-weight:800}
+nav#nav{background:#0b2035!important}
+nav#nav .pd-nav-link.active:after{background:linear-gradient(90deg,#36b9ee,#2ad5c6)}
+main#main{max-width:1120px!important}
+main#main .hero{background:radial-gradient(circle at 83% 10%,#268fc055,transparent 36%),linear-gradient(112deg,#0b2845 4%,#104e77 70%,#0b7892 110%)!important;min-height:212px;border:1px solid #2a7293!important;padding:34px 38px!important;border-radius:22px!important;box-shadow:0 18px 40px #0b355a25!important;isolation:isolate}
+main#main .hero:before{content:"";position:absolute;right:25px;bottom:-84px;width:250px;height:250px;border:1px solid #ffffff2b;border-radius:50%;pointer-events:none}
+main#main .hero:after{content:"";position:absolute;right:62px;top:-125px;width:290px;height:290px;border:1px solid #ffffff24;border-radius:50%;pointer-events:none}
+main#main .hero .eyebrow{color:#73dce3!important;letter-spacing:2.4px;font-size:10px!important}
+main#main .hero h1{font-size:clamp(29px,4vw,40px)!important;font-weight:790!important;letter-spacing:-1.4px!important;line-height:1.1;margin:12px 0!important}
+main#main .hero p{color:#c5e0ee!important;font-size:14px;line-height:1.7}
+main#main .hero .btn{background:#fff!important;color:#103d5b!important;border:0!important;border-radius:11px!important;padding:15px 20px!important;font-size:13px!important;box-shadow:0 7px 18px #061e3650!important}
+main#main .hero .btn:hover{background:#eaf9ff!important;transform:translateY(-1px)}
+main#main .dash-heading{font-size:17px!important;font-weight:790!important;letter-spacing:-.35px;margin:30px 0 14px!important;color:#17364f}
+main#main .dash-heading small{color:#8192a3!important;font-weight:500}
+main#main .stat{background:#fff!important;border:1px solid #e2ebf3!important;box-shadow:0 7px 22px #16466d09!important;padding:21px!important;border-radius:16px!important;position:relative;overflow:hidden;transition:transform .16s,box-shadow .16s}
+main#main .stat:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#4c9ed5}
+main#main .stat:nth-child(2):before{background:#2eb5b2}
+main#main .stat:nth-child(3):before{background:#edb45c}
+main#main .stat strong{font-size:clamp(23px,3vw,31px)!important;font-weight:800!important;letter-spacing:-1px!important;color:#163d59}
+main#main .stat .muted{font-size:12px!important;font-weight:600}
+main#main .quick-grid{gap:14px!important}
+main#main .quick{border:1px solid #e1eaf2!important;border-radius:17px!important;padding:22px!important;background:linear-gradient(145deg,#fff,#fafdff)!important;box-shadow:0 7px 25px #153d5d0b!important;transition:transform .16s,border-color .16s,box-shadow .16s;position:relative}
+main#main .quick:hover{transform:translateY(-3px);border-color:#86c6e6!important;box-shadow:0 12px 30px #153d5d18!important}
+main#main .quick:focus-visible{outline:3px solid #8acfea;outline-offset:2px}
+main#main .quick-icon{width:49px;height:49px;border-radius:15px;background:#e7f4ff!important;font-size:23px!important}
+main#main .quick:nth-child(2) .quick-icon{background:#e3f7f3!important}
+main#main .quick:nth-child(3) .quick-icon{background:#fff3e4!important}
+main#main .quick:nth-child(4) .quick-icon{background:#edf0ff!important}
+main#main .quick strong{font-size:14px!important;color:#183a54}
+main#main .quick span:last-child{line-height:1.5;font-size:12px!important}
+main#main .panel,main#main .payment-box{background:#fff!important;box-shadow:0 6px 25px #173e5b09!important;border:1px solid #e1eaf2!important}
+main#main .panel h2{font-size:19px!important}
+main#main input,main#main textarea,main#main select{background:#fcfdff!important;border-color:#d6e2ec!important}
+main#main input:focus,main#main textarea:focus,main#main select:focus{background:#fff!important;border-color:#3e9bd0!important;box-shadow:0 0 0 3px #5bb7e422}
+main#main .btn.primary{background:linear-gradient(105deg,#126eaf,#0983b8)!important;border-color:#126eaf!important;box-shadow:0 5px 15px #166ea62b!important}
+main#main .btn.primary:hover{filter:brightness(1.08)}
+main#main .pd-simple-choice input:checked+span,main#main .pd-photo-layout input:checked+span{background:#eff9fc!important;border-color:#1898bd!important;box-shadow:0 0 0 2px #5bc6db2a!important}
+main#main .pd-upload-photos{background:linear-gradient(105deg,#126eaf,#0b92b7)!important}
+main#main .pd-ledger-stats>div{background:#eef6fa!important}
+@media(max-width:750px){main#main .hero{min-height:0;padding:25px 20px!important;gap:18px!important}main#main .hero h1{font-size:30px!important}main#main .stat{padding:14px!important}main#main .quick{padding:15px!important}main#main .quick-icon{width:43px;height:43px}main#main .dash-heading{margin-top:25px!important}}
+@media(max-width:420px){main#main .hero{flex-direction:column;align-items:stretch!important}main#main .hero .btn{width:100%}main#main .stat strong{font-size:21px!important}main#main .stat .muted{font-size:11px!important}}
+@media(prefers-reduced-motion:reduce){main#main .quick,main#main .stat{transition:none!important}}
