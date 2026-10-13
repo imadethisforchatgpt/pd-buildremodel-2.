@@ -88,18 +88,30 @@ estimateForm=function(){
  priorEditor();
  const panel=document.getElementById('pdBlockEditor');if(!panel)return;
  const oldButtons=panel.querySelector('.pd-add-actions');
- if(oldButtons)oldButtons.classList.add('pd-advanced-block-tools');
+ if(oldButtons)oldButtons.remove();
+ const title=panel.querySelector('h2');if(title)title.textContent='Project photos';
  const intro=panel.querySelector('.muted');
- if(intro)intro.textContent='Choose a photo layout, upload pictures, and we arrange them for you.';
+ if(intro)intro.textContent='Upload pictures and write a description above or below each one.';
  const simple=document.createElement('div');simple.className='pd-simple-photo-tools';
  simple.innerHTML='<div class="pd-photo-layout-choices">'+
  '<label class="pd-photo-layout"><input type="radio" name="pdPhotoLayout" value="full" checked><span>▣<strong>Large photos</strong><small>One per row</small></span></label>'+
  '<label class="pd-photo-layout"><input type="radio" name="pdPhotoLayout" value="pair"><span>▦<strong>Two side by side</strong><small>Compact gallery</small></span></label>'+
  '<label class="pd-photo-layout"><input type="radio" name="pdPhotoLayout" value="before"><span>◫<strong>Before & after</strong><small>Paired comparison</small></span></label></div>'+
- '<label class="pd-upload-photos">+ Add photos<input id="pdQuickPhotos" type="file" accept="image/*" multiple></label><p class="pd-payment-note">Choose several photos at once. Tap any photo to replace it.</p>'+
- '<details class="pd-extra-document-tools"><summary>Add text, headings or dividers</summary></details>';
+ '<label class="pd-upload-photos">+ Add photos<input id="pdQuickPhotos" type="file" accept="image/*" multiple></label><p class="pd-payment-note">Add photos, then type your description and choose Above or Below for each.</p>';
  panel.querySelector('h2')?.after(simple);
- simple.querySelector('details').appendChild(oldButtons);
+ const items=panel.querySelector('#pdBlockItems');
+ if(items){
+  const observer=new MutationObserver(()=>{
+   items.querySelectorAll('.pd-block-card').forEach(card=>{
+    const type=card.querySelector('.pd-block-top strong')?.textContent;
+    if(type!=='Photo'){card.hidden=true;return}
+    const width=card.querySelector('.pd-block-width');
+    if(width){width.setAttribute('aria-label','Photo layout')}
+   });
+  });
+  observer.observe(items,{childList:true}); 
+  items.querySelectorAll('.pd-block-card').forEach(card=>{if(card.querySelector('.pd-block-top strong')?.textContent!=='Photo')card.hidden=true});
+ }
  const input=simple.querySelector('#pdQuickPhotos');
  input.addEventListener('change',async()=>{
   if(!input.files?.length)return;
