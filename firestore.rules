@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function owner(uid) { return signedIn() && request.auth.uid == uid; }
-    function smallDocument() { return request.resource.size < 1048576; }
+    function smallDocument() { return request.resource.data.keys().size() <= 100; }
     function allowedCollection(name) {
       return name in ['clients','projects','estimates','invoices','payments','settings'];
     }
