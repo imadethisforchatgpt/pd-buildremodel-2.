@@ -272,3 +272,18 @@ body.pd-command-body>main#main #pdFullBackup{margin-top:12px}
  body.pd-command-body>main#main .pd-record-tools{display:grid;grid-template-columns:1fr;gap:8px}
  body.pd-command-body>main#main .pd-record-tools select,body.pd-command-body>main#main .pd-record-tools input.search{width:100%!important;max-width:none!important}
 }
+
+/* iPhone bottom-navigation hard reset.
+   Older studio-theme.css used !important six-column grid and placed the More
+   popup BELOW the bar; these specific overrides correct its actual geometry. */
+@media(max-width:860px){
+ body.pd-command-body>nav#nav .pd-nav-inner{display:flex!important;grid-template-columns:none!important;gap:0!important;max-width:none!important;min-width:0!important;width:100%!important}
+ body.pd-command-body>nav#nav .pd-nav-more{position:relative!important;display:flex!important;align-items:stretch!important;flex:1 1 0!important;min-width:0!important;width:auto!important;margin:0!important}
+ body.pd-command-body>nav#nav button#pdMoreToggle,body.pd-command-body>nav#nav button#pdMoreToggle.active{display:flex!important;flex:1!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important;min-width:0!important;width:100%!important;min-height:69px!important;padding:9px 2px 6px!important;white-space:normal!important;background:transparent!important;color:#667f90!important;border:0!important;font-size:10px!important;font-weight:750!important;box-shadow:none!important;appearance:none!important}
+ body.pd-command-body>nav#nav button#pdMoreToggle.active{color:#1179b8!important}
+ body.pd-command-body>nav#nav .pd-nav-more .pd-nav-menu,body.pd-command-body>nav#nav .pd-nav-menu{position:absolute!important;top:auto!important;bottom:calc(100% + 12px)!important;left:auto!important;right:5px!important;display:block;min-width:230px!important;width:min(285px,calc(100vw - 24px))!important;max-width:calc(100vw - 24px)!important;background:#fff!important;border:1px solid #dce6ee!important;border-radius:16px!important;box-shadow:0 16px 40px #102f4638!important;padding:8px!important;z-index:100!important}
+ body.pd-command-body>nav#nav .pd-nav-menu[hidden]{display:none!important}
+ body.pd-command-body>nav#nav .pd-nav-menu button,body.pd-command-body>nav#nav .pd-nav-menu button.active{color:#26465f!important;background:transparent!important;white-space:normal!important;font-size:14px!important;text-align:left!important}
+ body.pd-command-body>nav#nav .pd-nav-menu button:hover,body.pd-command-body>nav#nav .pd-nav-menu button.active{background:#e9f4fb!important;color:#145f90!important}
+ body.pd-command-body>nav#nav .pd-nav-inner>.pd-nav-link{flex:1 1 0!important;min-width:0!important}
+}
