@@ -119,7 +119,7 @@ async function run(){
   assert.ok(invoiceLogo.src.endsWith('/assets/pd-invoice-roof.webp'),'Invoice is not using the official light-background P&D roofline logo: '+invoiceLogo.src);
   assert.ok(invoiceLogo.width>=290 && invoiceLogo.naturalWidth>=400,'Invoice logo is missing or too small: '+JSON.stringify(invoiceLogo));
   await flow.screenshot({path:'qa-screenshots/after-invoice-branded-preview.png',fullPage:true});
-  const invoicePaper=await flow.evaluate(()=>({html:documentHTML('invoice',db.invoices[0],0),css:[...document.querySelectorAll('style')].map(el=>el.textContent).join('\\n')}));
+  const invoicePaper=await flow.evaluate(()=>({html:documentHTML('invoice',db.invoices[0],0),css:[...document.querySelectorAll('style')].map(el=>el.textContent).join(' ')}));
   const printPage=await browser.newPage({viewport:{width:900,height:1100}});
   await printPage.setContent('<!doctype html><html><head><meta charset="utf-8"><style>'+invoicePaper.css+'</style></head><body><main>'+invoicePaper.html+'</main></body></html>',{waitUntil:'load'});
   const printableLogo=await printPage.locator('.paper .doc-brand img').evaluate(async image=>{await image.decode();return {width:image.getBoundingClientRect().width,naturalWidth:image.naturalWidth,src:image.currentSrc}});
