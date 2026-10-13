@@ -132,7 +132,7 @@ estimateForm=function(){
 'use strict';
 const DRAFT_NEW='pd2_invoice_draft_v1';
 const BRAND_LOGO=location.origin+'/assets/pd-invoice-roof.webp';
-let editingInvoice=null,draftTimeout=null;
+let editingInvoice=null,draftTimeout=null,invoiceContentBlocks=[],invoicePhotoBusy=false;
 const validArray=v=>Array.isArray(v)?v:[];
 const day=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const cents=v=>Math.round((Number(v)||0)*100);
@@ -149,7 +149,7 @@ function formValues(){
  return {client:val('eclient'),customerPhone:val('pdInvoicePhone'),customerEmail:val('pdInvoiceEmail'),
  projectAddress:val('pdInvoiceAddress'),projectName:val('pdInvoiceProject'),description:val('edesc'),
  invoiceDate:val('pdInvoiceDate')||day(),dueDate:val('pdInvoiceDue'),notes:val('enotes'),warranty:val('ewarranty'),
- lines,total:cents(lines.reduce((sum,l)=>sum+l.quantity*l.price,0))/100};
+ lines,total:cents(lines.reduce((sum,l)=>sum+l.quantity*l.price,0))/100,contentBlocks:PDBlocks.clean(invoiceContentBlocks)};
 }
 function saveDraft(){
  const editor=document.getElementById('pdInvoiceEditor');if(!editor)return;
@@ -198,6 +198,65 @@ function invoicePreview(){
  window.PDEditor?.hydrate(body);
  body.scrollIntoView({behavior:'smooth',block:'start'});
 }
+function drawInvoicePhotos(){
+ const host=document.getElementById('pdInvoicePhotoItems');if(!host)return;
+ const photos=invoiceContentBlocks.filter(b=>b.type==='photo');
+ host.innerHTML=photos.map((block,i)=>'<article class="pd-invoice-photo-card" data-photo-id="'+esc(block.id)+'">'+
+ '<div class="pd-invoice-photo-top"><strong>Project photo '+(i+1)+'</strong><button type="button" class="btn pd-invoice-photo-remove" aria-label="Remove photo '+(i+1)+'">Remove</button></div>'+
+ '<div class="pd-invoice-photo-preview" data-photo-id="'+esc(block.id)+'"><span>Loading photo…</span></div>'+
+ '<label for="pdPhotoCaption'+i+'">Description below photo</label>'+
+ '<textarea id="pdPhotoCaption'+i+'" class="pd-invoice-photo-caption" rows="3" placeholder="Describe the work shown in this photo (optional)">'+esc(block.caption||'')+'</textarea></article>').join('')||
+ '<div class="pd-invoice-photo-empty">No photos added yet. Add an image and type the description you want customers to see.</div>';
+ host.querySelectorAll('.pd-invoice-photo-preview').forEach(async area=>{
+  const id=area.dataset.photoId;
+  const block=invoiceContentBlocks.find(b=>b.id===id);if(!block?.src)return;
+  try{
+   const img=await window.PDEditor.loadPhoto(block.src);
+   if(!area.isConnected||!img)return;
+   area.innerHTML='';
+   const image=document.createElement('img');image.src=img;image.alt=block.caption||'Project photo';
+   area.appendChild(image);
+  }catch(error){if(area.isConnected)area.textContent='Photo is not available on this device';}
+ });
+}
+function bindInvoicePhotos(){
+ const uploader=document.getElementById('pdInvoicePhotoUpload');
+ const host=document.getElementById('pdInvoicePhotoItems');
+ const status=document.getElementById('pdInvoicePhotoState');
+ if(!uploader||!host)return;
+ uploader.addEventListener('change',async()=>{
+  const selected=[...(uploader.files||[])];if(!selected.length)return;
+  invoicePhotoBusy=true;uploader.disabled=true;
+  const submit=document.querySelector('#pdInvoiceEditor button[type="submit"]');if(submit)submit.disabled=true;
+  status.textContent='Saving '+selected.length+' photo'+(selected.length===1?'':'s')+' to this device…';
+  let completed=0;
+  for(const file of selected){
+   try{
+    const id=await window.PDEditor.storeInvoicePhoto(file);
+    if(!document.getElementById('pdInvoiceEditor')?.isConnected)break;
+    const block=PDBlocks.make('photo');block.src=id;block.captionPosition='below';block.width='full';
+    invoiceContentBlocks.push(block);completed++;drawInvoicePhotos();saveDraft();
+   }catch(error){status.textContent='Unable to save '+file.name+': '+(error.message||'Photo upload failed');}
+  }
+  invoicePhotoBusy=false;uploader.disabled=false;uploader.value='';
+  if(submit)submit.disabled=false;
+  if(completed)status.textContent=completed+' photo'+(completed===1?'':'s')+' saved on this device. Add a description below each photo.';
+ });
+ host.addEventListener('input',event=>{
+  const el=event.target;if(!el.classList.contains('pd-invoice-photo-caption'))return;
+  const card=el.closest('[data-photo-id]');if(!card)return;
+  const block=invoiceContentBlocks.find(b=>b.id===card.dataset.photoId);if(!block)return;
+  block.caption=el.value;block.captionPosition='below';scheduleDraft();
+ });
+ host.addEventListener('click',event=>{
+  const btn=event.target.closest('.pd-invoice-photo-remove');if(!btn)return;
+  const id=btn.closest('[data-photo-id]')?.dataset.photoId;
+  if(!id||!confirm('Remove this photo from the invoice? The saved image will remain in browser storage.'))return;
+  invoiceContentBlocks=invoiceContentBlocks.filter(b=>b.id!==id);
+  drawInvoicePhotos();saveDraft();status.textContent='Photo removed from invoice.';
+ });
+ drawInvoicePhotos();
+}
 function invoiceForm(index){
  const editing=Number.isInteger(index)&&index>=0&&!!db.invoices[index];
  editingInvoice=editing?index:null;
@@ -205,6 +264,7 @@ function invoiceForm(index){
  const old=editing?db.invoices[index]:null;
  let saved=null;try{saved=JSON.parse(localStorage.getItem(draftKey())||'null')}catch(_){}
  const starting=saved?.values||old||{},clients=validArray(db.clients),projects=validArray(db.projects);
+ invoiceContentBlocks=PDBlocks.clean(starting.contentBlocks);invoicePhotoBusy=false;
  const main=document.getElementById('main');
  main.innerHTML='<div class="pd-page-heading"><div><div class="pd-overline">P&D / DOCUMENT WORKSPACE</div><h1>'+(editing?'Edit invoice':'New invoice')+'</h1><div class="pd-page-sub muted">Create and edit detailed invoices without losing recorded payments.</div></div></div>'+
  '<div class="form-intro"><h2>Invoice studio</h2><p>Fill in the project, add work items, and let P&D calculate the balance. Money received is recorded in the invoice payment ledger.</p></div>'+
@@ -217,13 +277,18 @@ function invoiceForm(index){
  '<label for="edesc">Project description</label><textarea id="edesc" rows="3" placeholder="Custom cabinets, materials, fabrication, installation..."></textarea>'+
  '<div class="two"><div><label for="pdInvoiceDate">Invoice date</label><input id="pdInvoiceDate" type="date" value="'+day()+'"></div><div><label for="pdInvoiceDue">Payment due date</label><input id="pdInvoiceDue" type="date"></div></div>'+
  '<div class="form-section"><div class="section-head"><h2>02 · Scope & pricing</h2><span class="pill">Calculated automatically</span></div><div id="lines"></div><div class="actions"><button type="button" id="pdAddInvoiceLine" class="btn">+ Add line item</button></div></div>'+
- '<div class="form-section"><div class="section-head"><h2>03 · Payment requests</h2><span class="pill">Optional</span></div>'+
+ '<div class="form-section" id="pdInvoicePhotos"><div class="section-head"><h2>03 · Project photos</h2><span class="pill">Optional</span></div>'+ 
+ '<p class="pd-payment-note">Photos appear below the work scope and above the invoice totals. Write a description for each photo.</p>'+ 
+ '<label for="pdInvoicePhotoUpload">Add project photos</label><input id="pdInvoicePhotoUpload" type="file" accept="image/*" multiple aria-label="Add project photos">'+
+ '<p id="pdInvoicePhotoState" class="pd-photo-help" role="status">Photos are stored on this device; descriptions appear beneath them.</p><div id="pdInvoicePhotoItems"></div></div>'+ 
+ '<div class="form-section"><div class="section-head"><h2>04 · Payment requests</h2><span class="pill">Optional</span></div>'+
  '<p class="pd-payment-note">Choose how much the customer is expected to pay. Actual money received belongs in the separate payment ledger.</p>'+
  '<label for="pdInvoicePlan">Payment schedule</label><select id="pdInvoicePlan">'+(editing&&validArray(old?.paymentSchedule).length?option('keep','Keep existing payment schedule'):'')+option('none','No schedule')+option('deposit','Deposit + final balance')+option('three','Three equal payments')+option('ten-thirty','10% deposit / 30% progress / 60% final')+'</select>'+
  '<div id="pdInvoiceDepositWrap" hidden><label for="pdInvoiceDeposit">Requested deposit percentage</label><input id="pdInvoiceDeposit" type="number" min="0" max="100" step="1" value="10"></div><div id="pdInvoicePlanPreview" class="pd-command-panel pd-plan-preview"></div></div>'+
- '<div class="form-section"><h2>04 · Notes & warranty</h2><label for="enotes">Notes / terms (optional)</label><textarea id="enotes" rows="3"></textarea><label for="ewarranty">Warranty (optional)</label><textarea id="ewarranty" rows="3"></textarea></div>'+
- '<div class="form-section"><div class="section-head"><h2>05 · Review & save</h2><span class="pill">Final</span></div><div class="total" id="etotal">$0.00</div><p class="form-field-note">Invoice balance excludes payments not yet recorded.</p><div class="actions"><button type="button" class="btn" id="pdPreviewInvoice">Preview</button><button type="submit" class="btn primary">'+(editing?'Save invoice changes':'Save new invoice')+'</button><button type="button" id="pdCancelInvoice" class="btn">Cancel</button></div><p id="pdInvoiceDraftState" class="pd-autosave-tag" aria-live="polite"></p></div></form>';
+ '<div class="form-section"><h2>05 · Notes & warranty</h2><label for="enotes">Notes / terms (optional)</label><textarea id="enotes" rows="3"></textarea><label for="ewarranty">Warranty (optional)</label><textarea id="ewarranty" rows="3"></textarea></div>'+
+ '<div class="form-section"><div class="section-head"><h2>06 · Review & save</h2><span class="pill">Final</span></div><div class="total" id="etotal">$0.00</div><p class="form-field-note">Invoice balance excludes payments not yet recorded.</p><div class="actions"><button type="button" class="btn" id="pdPreviewInvoice">Preview</button><button type="submit" class="btn primary">'+(editing?'Save invoice changes':'Save new invoice')+'</button><button type="button" id="pdCancelInvoice" class="btn">Cancel</button></div><p id="pdInvoiceDraftState" class="pd-autosave-tag" aria-live="polite"></p></div></form>';
  setFields(starting);
+ bindInvoicePhotos();
  const plan=document.getElementById('pdInvoicePlan');
  if(saved?.plan&&[...plan.options].some(o=>o.value===saved.plan))plan.value=saved.plan;
  if(saved?.deposit!==undefined)document.getElementById('pdInvoiceDeposit').value=saved.deposit;
@@ -258,6 +323,7 @@ function validPrices(){
  return [...document.querySelectorAll('#lines .lprice')].every(el=>/^\d+(\.\d{1,2})?$/.test(el.value.trim()));
 }
 function submitInvoice(){
+ if(invoicePhotoBusy)return alert('Wait for your photo to finish saving before submitting the invoice.');
  const x=formValues(),old=editingInvoice===null?null:db.invoices[editingInvoice],index=editingInvoice;
  if(!x.client)return alert('Enter a customer name.');
  if(!x.lines.length||x.lines.some(l=>!l.description.trim()||l.quantity<=0||l.price<0)||!validPrices())return alert('Each line needs a description, positive quantity and a valid price with at most two decimal places.');
@@ -322,6 +388,7 @@ documentHTML=function(type,x,i){
  let content=beforeDocHTML(type,x,i);
  content=content.replace(/src="\.\/assets\/pd-roof-reference\.svg"/g,'src="'+BRAND_LOGO+'" data-pd-official-invoice-logo="true"');
  content=content.replace('alt="Original P&D logo"','alt="Official P&D invoice roofline and lettering"');
+ content=content.replace('<div class="sub">Precision & Detail</div>','<div class="sub">Precision & Design</div>');
  const fields=[];
  if(x.projectName)fields.push('<span><b>Project</b> '+esc(x.projectName)+'</span>');
  if(x.projectAddress)fields.push('<span><b>Jobsite</b> '+esc(x.projectAddress)+'</span>');
