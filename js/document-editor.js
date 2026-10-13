@@ -118,6 +118,58 @@ const oldSavedPreview=previewDoc;
 previewDoc=function(type,i){oldSavedPreview(type,i);hydrate(document.getElementById('main'))};
 window.PDEditor={add,hydrate,loadPhoto};
 
+/* Draft recovery stores text, calculations, and photo references.
+   Actual photos remain in the same browser's IndexedDB in test mode. */
+const DRAFT_KEY='pd2_estimate_draft_1';
+let draftTimer=null,restoringDraft=false;
+function saveWorkingDraft(){
+ if(restoringDraft||editingEstimateIndex!==null||!document.getElementById('pdBlockEditor'))return;
+ try{
+  const x=draftData();
+  localStorage.setItem(DRAFT_KEY,JSON.stringify({version:1,savedAt:new Date().toISOString(),estimate:x}));
+  const note=document.getElementById('pdBlocksState');if(note)note.textContent='Draft saved on this device';
+ }catch(error){
+  const note=document.getElementById('pdBlocksState');if(note)note.textContent='Draft not saved: browser storage is unavailable';
+ }
+}
+function scheduleDraftSave(){clearTimeout(draftTimer);draftTimer=setTimeout(saveWorkingDraft,700)}
+document.addEventListener('input',e=>{if(e.target.closest('#main')&&document.getElementById('pdBlockEditor'))scheduleDraftSave()});
+document.addEventListener('change',e=>{if(e.target.closest('#main')&&document.getElementById('pdBlockEditor'))scheduleDraftSave()});
+const previousChange=changed;
+changed=function(){previousChange();scheduleDraftSave()};
+const priorForm=estimateForm;
+estimateForm=function(){
+ priorForm();
+ if(editingEstimateIndex!==null)return;
+ let entry;try{entry=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null')}catch(_){}
+ const saved=entry?.estimate;if(!saved)return;
+ restoringDraft=true;
+ try{
+  for(const [id,key] of [['eclient','client'],['edesc','description'],['enotes','notes'],['ewarranty','warranty'],['edeposit','deposit'],['eschedule','schedule'],['pdCustomerPhone','customerPhone'],['pdCustomerEmail','customerEmail'],['pdJobAddress','projectAddress']]){
+   const el=document.getElementById(id);if(el&&saved[key]!==undefined)el.value=saved[key];
+  }
+  const list=document.getElementById('lines');
+  if(list&&Array.isArray(saved.lines)){list.innerHTML='';saved.lines.forEach(line=>{
+   addLine();const row=list.lastElementChild;
+   if(row){row.querySelector('.ldesc').value=line.description||'';row.querySelector('.lqty').value=line.quantity??1;row.querySelector('.lprice').value=line.price??0}
+  });}
+  blocks=PDBlocks.clean(saved.contentBlocks);draw();
+  const type=document.getElementById('pdPlanType');
+  if(type&&Array.isArray(saved.paymentSchedule)&&saved.paymentSchedule.length){type.value=saved.paymentPlanType||'custom';pdScheduleRows(saved.paymentSchedule);pdPlanCustomized=true}
+  updateTotal();
+  const note=document.getElementById('pdBlocksState');if(note)note.textContent='Unsaved draft restored from this device';
+ }finally{restoringDraft=false}
+};
+const priorSave=saveEstimate;
+saveEstimate=function(){
+ priorSave();
+ if(!document.getElementById('pdBlockEditor')){
+  clearTimeout(draftTimer);
+  try{localStorage.removeItem(DRAFT_KEY)}catch(_){}
+ }
+};
+
+
 const previousSavedPreview=previewDoc;
 previewDoc=function(type,i){
  previousSavedPreview(type,i);
