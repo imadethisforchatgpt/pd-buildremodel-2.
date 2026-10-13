@@ -3,7 +3,7 @@
    project records, estimate handlers and IndexedDB photo storage are untouched. */
 (function(){
 'use strict';
-const LOGO='https://raw.githubusercontent.com/imadethisforchatgpt/pd-build-remodel-website/main/assets/pd-logo.png';
+const LOGO='./assets/pd-logo.png';
 const GLYPHS={
  Dashboard:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
  Estimates:'<path d="M8 3h8l4 4v14H8a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z"/><path d="M16 3v5h5M9 13h8M9 17h6"/>',
