@@ -114,5 +114,7 @@ async function hydrate(root){
   catch(_){img.replaceWith(document.createTextNode('Photo storage unavailable'))}
  }));
 }
+const oldSavedPreview=previewDoc;
+previewDoc=function(type,i){oldSavedPreview(type,i);hydrate(document.getElementById('main'))};
 window.PDEditor={add,hydrate,loadPhoto};
 })();
