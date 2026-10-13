@@ -12,7 +12,7 @@ pdPaymentControls=function(){
  if(heading)heading.textContent='Pick a plan. We calculate the payments automatically.';
  const select=document.getElementById('pdPlanType');
  const quick=document.createElement('div');quick.className='pd-simple-plan-choices';
- quick.innerHTML='<label class="pd-simple-choice"><input type="radio" name="pdSimplePlan" value="deposit" checked><span><strong>Deposit + balance</strong><small>Deposit now, remainder when work is complete</small></span></label>'+
+ quick.innerHTML='<label class="pd-simple-choice"><input type="radio" name="pdSimplePlan" value="deposit" checked><span><strong>Deposit + balance</strong><small>50% at start, 50% upon completion by default</small></span></label>'+
  '<label class="pd-simple-choice"><input type="radio" name="pdSimplePlan" value="three"><span><strong>3 payments</strong><small>Three equal installments</small></span></label>'+
  '<label class="pd-simple-choice"><input type="radio" name="pdSimplePlan" value="ten-thirty"><span><strong>10% / 30% / 60%</strong><small>Deposit, progress payment, final balance</small></span></label>';
  builder.before(quick);
@@ -25,13 +25,13 @@ pdPaymentControls=function(){
  detail.after(preview);
  const list=document.getElementById('pdInstallments');preview.appendChild(list);
  const action=document.createElement('div');action.className='pd-simple-actions';
- action.innerHTML='<button type="button" class="btn" id="pdEditPayments">Edit payment details</button>';
+ action.innerHTML='<button type="button" class="btn" id="pdEditPayments">Edit payment terms & details</button>';
  preview.appendChild(action);
  const note=document.createElement('p');note.className='pd-payment-note';
  note.textContent='Payment schedules are requests. Actual payments are recorded separately on the invoice.';
  preview.appendChild(note);
  const depositRow=document.createElement('div');depositRow.className='pd-simple-deposit';
- depositRow.innerHTML='<label>Deposit percentage <input id="pdSimpleDeposit" type="number" min="0" max="100" step="1" value="10" inputmode="numeric"></label>';
+ depositRow.innerHTML='<label>Deposit percentage <input id="pdSimpleDeposit" type="number" min="0" max="100" step="1" value="50" inputmode="numeric"></label>';
  quick.after(depositRow);
  function sync(){
   const value=select.value;
@@ -42,7 +42,7 @@ pdPaymentControls=function(){
   const advanced=detail.open||preview.classList.contains('pd-is-editing');
   list.classList.toggle('pd-simple-readonly',!advanced);
   const edit=document.getElementById('pdEditPayments');
-  if(edit)edit.textContent=advanced?'Done editing':'Edit payment details';
+  if(edit)edit.textContent=advanced?'Done editing':'Edit payment terms & details';
  }
  quick.addEventListener('change',event=>{
   const input=event.target.closest('input[name="pdSimplePlan"]');if(!input)return;
