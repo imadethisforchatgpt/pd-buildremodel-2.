@@ -15,7 +15,7 @@ window.PDBlocks={
    if(b.type==='divider')return '<hr class="pd-doc-divider">';
    if(b.type==='heading')return '<h3 class="pd-doc-heading">'+e(b.text)+'</h3>';
    if(b.type==='text')return '<div class="pd-doc-text">'+e(b.text).replace(/\n/g,'<br>')+'</div>';
-   return b.src?'<figure class="pd-doc-photo '+(b.width==='half'?'pd-photo-half':'')+'"><img src="'+e(b.src)+'" alt="'+e(b.caption||'Project photo')+'">'+(b.caption?'<figcaption>'+e(b.caption)+'</figcaption>':'')+'</figure>':'';
+   return b.src?'<figure class="pd-doc-photo '+(b.width==='half'?'pd-photo-half':'')+'"><img data-pd-photo="'+e(b.src)+'" alt="'+e(b.caption||'Project photo')+'">'+(b.caption?'<figcaption>'+e(b.caption)+'</figcaption>':'')+'</figure>':'';
   }).join('')+'</section>';
  }
 };
