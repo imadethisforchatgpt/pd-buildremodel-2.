@@ -26,11 +26,21 @@ P&D 3.0 should feel as approachable as the original P&D Estimates & Invoices app
 - [x] Inspect navigation and core flows in the current code.
 - [ ] Review reference app's actual UI with authorized screenshots or direct inspection.
 - [x] Implement first-pass P&D 3.0 identity, desktop sidebar, iPhone navigation, and dedicated dashboard.
-- [ ] Streamline estimate, invoice, and payment flows beyond the inherited functionality.
+- [ ] Continue streamlining estimate, invoice, and payment flows beyond the inherited functionality.
+- [x] Default payment requests to 50% at start / 50% at completion, with per-estimate editable milestones and invoice-level terms editor.
+- [x] Include P&D Build&Remodel plus configurable preparer name on estimates, invoices, previews and print/PDF output.
 - [ ] Improve client management and document/photos workflows.
-- [x] Add isolated automated mobile/desktop, persistence, estimate, invoice and payment smoke tests.\n- [ ] Confirm those tests pass and review generated screenshots and document output.
-- [x] Use separate 3.0 localStorage, IndexedDB photo storage, and estimate draft recovery keys.\n- [ ] Deploy to a separate P&D 3.0 preview after the Render workspace is confirmed.
+- [x] Add isolated automated mobile/desktop, persistence, estimate, invoice and payment smoke tests.
+- [x] Confirm expanded GitHub Actions checks pass for payment conditions, invoice branding, edits, data isolation and payment preservation.
+- [ ] Review generated screenshots manually and verify printing on mobile devices.
+- [x] Use separate 3.0 localStorage, IndexedDB photo storage, and estimate draft recovery keys.
+- [x] Create the separate P&D 3.0 Render static site in the confirmed workspace with auto deploy disabled.
+- [ ] Manually redeploy updated payment and document controls to the 3.0 preview.
 - [ ] Compare original, 2.0 and 3.0 with the owner before considering a winner.
+
+## Future considerations
+- Optional Magicplan plan/measurement intake for cabinet and remodeling estimates. No integration or access requested yet.
+- Keep existing records intact when changing default payment templates; customers can opt into new conditions per document.
 
 ## Release rule
 No version is promoted, replaced, merged into `main`, or connected to a production subdomain without explicit owner approval.
