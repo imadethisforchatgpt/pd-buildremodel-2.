@@ -1,0 +1,75 @@
+name: P&D 3.0 Isolated Quality Check
+on:
+  push:
+    branches:
+      - feature/pd3-premium-experience
+  workflow_dispatch:
+jobs:
+  pd3-smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 18
+    steps:
+      - name: Checkout P&D 3.0 only
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate standalone 3.0 data isolation
+        shell: bash
+        run: |
+          set -e
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('index.html').read_text()
+          editor=Path('js/document-editor.js').read_text()
+          assert "pd3_preview_records_v1" in html
+          assert "pd2_test_records_v2" not in html
+          assert "pd3-preview-document-images" in editor
+          assert "pd3_preview_estimate_draft_v1" in editor
+          assert "pd2-document-images" not in editor
+          assert "pd2_estimate_draft_1" not in editor
+          assert 'js/pd3-experience.js' in html
+          assert 'css/pd3-experience.css' in html
+          print('3.0 keys, photo storage, and assets are isolated')
+          PY
+      - name: Validate JavaScript syntax
+        shell: bash
+        run: |
+          set -e
+          for file in js/*.js; do node --check "$file"; done
+          node --check tests/pd3-qa.cjs
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          html=Path('index.html').read_text()
+          scripts=re.findall(r'<script(?:\s+[^>]*)?>(.*?)</script>',html,re.S)
+          assert scripts, 'Inline app script not found'
+          for i,code in enumerate(scripts): Path(f'/tmp/pd3-inline-{i}.js').write_text(code)
+          PY
+          for file in /tmp/pd3-inline-*.js; do node --check "$file"; done
+      - name: Install browser test tools
+        run: |
+          npm init -y >/dev/null
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start isolated P&D 3.0 site
+        shell: bash
+        run: |
+          nohup python3 -m http.server 8767 --bind 127.0.0.1 --directory "$PWD" >/tmp/pd3-server.log 2>&1 &
+          for i in $(seq 1 25); do
+            if curl -fsS http://127.0.0.1:8767/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Run desktop, mobile, estimates and payment checks
+        run: node tests/pd3-qa.cjs
+      - name: Upload P&D 3.0 design screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pd3-isolated-design-screenshots
+          path: qa-screenshots/pd3/
+          if-no-files-found: ignore
