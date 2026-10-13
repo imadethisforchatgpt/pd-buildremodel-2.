@@ -310,5 +310,76 @@ documentHTML=function(type,x,i){
  if(details)html=html.replace('<strong>'+esc(x.client)+'</strong>','<strong>'+esc(x.client)+'</strong>'+details);
  return html;
 };
+
+/* Stage 1 automation: cents-safe installments, non-destructive numeric entry */
+function pdCents(v){return Math.round((Number(v)||0)*100)}
+function pdMoneyFromCents(c){return Math.round(c)/100}
+function pdSplitCents(total,count){
+ const n=Math.max(1,Math.floor(count)),base=Math.floor(total/n);
+ return Array.from({length:n},(_,i)=>base+(i===n-1?total-base*n:0));
+}
+function pdBuildSchedule(total,kind,depositValue,depositMode){
+ const cents=Math.max(0,pdCents(total));
+ let parts;
+ if(kind==='two')parts=pdSplitCents(cents,2);
+ else if(kind==='three')parts=pdSplitCents(cents,3);
+ else if(kind==='deposit'){
+  const deposit=Math.min(cents,Math.max(0,depositMode==='percent'?Math.round(cents*(Number(depositValue)||0)/100):pdCents(depositValue)));
+  parts=[deposit,cents-deposit];
+ }else parts=[cents];
+ return parts.map((amount,i)=>({label:kind==='deposit'?(i===0?'Deposit':'Remaining balance'):'Payment '+(i+1),amount:pdMoneyFromCents(amount),dueDate:''}));
+}
+function pdPaymentControls(){
+ const host=document.getElementById('edeposit');if(!host||document.getElementById('pdPaymentPlan'))return;
+ const section=document.createElement('div');section.id='pdPaymentPlan';section.className='payment-box';
+ section.innerHTML='<h2>Automatic payment schedule</h2><label>Payment structure</label><select id="pdPlanType"><option value="deposit">Deposit + remaining balance</option><option value="two">Two equal payments</option><option value="three">Three equal payments</option><option value="custom">Custom installments</option></select><div class="two"><div><label>Deposit type</label><select id="pdDepositMode"><option value="percent">Percentage (%)</option><option value="amount">Dollar amount ($)</option></select></div><div><label>Deposit value</label><input id="pdDepositValue" type="number" inputmode="decimal" min="0" step=".01" value="50"></div></div><p class="muted">Change the plan or deposit to recalculate. Editing an installment keeps your custom amounts until you choose Recalculate.</p><div id="pdInstallments"></div><div class="actions"><button type="button" class="btn" onclick="pdRecalculatePlan()">Recalculate Payments</button><button type="button" class="btn" onclick="pdAddInstallment()">Add Installment</button></div><p id="pdScheduleCheck" class="muted" aria-live="polite"></p>';
+ host.closest('.payment-box')?.insertAdjacentElement('afterend',section);
+ section.querySelectorAll('#pdPlanType,#pdDepositMode,#pdDepositValue').forEach(el=>el.addEventListener('change',pdRecalculatePlan));
+ pdRecalculatePlan();
+}
+function pdScheduleRows(rows){
+ const el=document.getElementById('pdInstallments');if(!el)return;
+ el.innerHTML=rows.map((r,i)=>'<div class="two pd-installment"><div><label>Payment '+(i+1)+' description</label><input class="pd-pay-label" value="'+esc(r.label||'Payment '+(i+1))+'"></div><div><label>Amount ($)</label><input class="pd-pay-amount" type="number" inputmode="decimal" min="0" step=".01" value="'+Number(r.amount||0).toFixed(2)+'"></div><div><label>Due date (optional)</label><input class="pd-pay-date" type="date" value="'+esc(r.dueDate||'')+'"></div></div>').join('');
+ el.querySelectorAll('input').forEach(x=>x.addEventListener('input',pdCheckSchedule));
+ pdCheckSchedule();
+}
+function pdReadSchedule(){return [...document.querySelectorAll('#pdInstallments .pd-installment')].map(el=>({label:el.querySelector('.pd-pay-label').value.trim(),amount:pdMoneyFromCents(pdCents(el.querySelector('.pd-pay-amount').value)),dueDate:el.querySelector('.pd-pay-date').value}))}
+function pdCheckSchedule(){
+ const out=document.getElementById('pdScheduleCheck');if(!out)return;
+ const sum=pdReadSchedule().reduce((a,p)=>a+pdCents(p.amount),0);
+ const diff=pdCents(getLines().reduce((a,l)=>a+l.quantity*l.price,0))-sum;
+ out.textContent=diff===0?'Schedule matches document total.':(diff>0?'Unallocated: ':'Overallocated: ')+money(Math.abs(diff)/100);
+ out.style.color=diff===0?'#23754b':'#ad4c29';
+}
+function pdRecalculatePlan(){
+ const type=document.getElementById('pdPlanType')?.value||'deposit';
+ const current=pdReadSchedule();
+ const total=getLines().reduce((a,l)=>a+l.quantity*l.price,0);
+ let rows;
+ if(type==='custom')rows=current.length?current:pdBuildSchedule(total,'two');
+ else rows=pdBuildSchedule(total,type,document.getElementById('pdDepositValue')?.value,document.getElementById('pdDepositMode')?.value);
+ pdScheduleRows(rows);
+ const dep=document.getElementById('edeposit');if(dep)dep.value=type==='deposit'?rows[0].amount.toFixed(2):'0';
+}
+function pdAddInstallment(){pdScheduleRows([...pdReadSchedule(),{label:'Additional payment',amount:0,dueDate:''}]);document.getElementById('pdPlanType').value='custom'}
+const pdAutoForm=estimateForm;
+estimateForm=function(){pdAutoForm();pdPaymentControls()};
+const pdAutoDraft=draftData;
+draftData=function(){const x=pdAutoDraft();if(document.getElementById('pdPaymentPlan')){x.paymentPlanType=document.getElementById('pdPlanType').value;x.paymentSchedule=pdReadSchedule();x.deposit=x.paymentPlanType==='deposit'?(x.paymentSchedule[0]?.amount||0):0}return x};
+const pdAutoEdit=editEstimate;
+editEstimate=function(i){pdAutoEdit(i);const x=db.estimates[i];if(!x)return;const type=document.getElementById('pdPlanType');if(type&&Array.isArray(x.paymentSchedule)&&x.paymentSchedule.length){type.value=x.paymentPlanType||'custom';pdScheduleRows(x.paymentSchedule)}};
+const pdAutoSave=saveEstimate;
+saveEstimate=function(){if(document.getElementById('pdPaymentPlan')){const x=pdReadSchedule(),total=pdCents(getLines().reduce((a,l)=>a+l.quantity*l.price,0));if(x.some(p=>!Number.isFinite(p.amount)||p.amount<0)||x.reduce((a,p)=>a+pdCents(p.amount),0)!==total)return alert('Payment schedule must add up exactly to the estimate total. Choose Recalculate Payments or adjust installments.')}pdAutoSave()};
+const pdAutoUpdate=updateTotal;
+updateTotal=function(){pdAutoUpdate();pdCheckSchedule()};
+const pdAutoDoc=documentHTML;
+documentHTML=function(type,x,i){
+ let html=pdAutoDoc(type,x,i);
+ if(!Array.isArray(x.paymentSchedule)||!x.paymentSchedule.length)return html;
+ const rows=x.paymentSchedule.map(p=>'<div class="line"><span>'+esc(p.label||'Payment')+(p.dueDate?' · '+esc(p.dueDate):'')+'</span><strong>'+money(p.amount)+'</strong></div>').join('');
+ return html.replace('<div class="paper-totals">','<div class="paper-totals">'+rows);
+};
+document.addEventListener('focusin',function(e){const el=e.target;if(el instanceof HTMLInputElement&&el.type==='number'){el.select()}});
+document.addEventListener('blur',function(e){const el=e.target;if(el instanceof HTMLInputElement&&el.type==='number'&&el.value!==''&&Number.isFinite(Number(el.value))){if(el.classList.contains('lprice')||el.id==='edeposit'||el.classList.contains('pd-pay-amount')||el.id==='pdDepositValue'&&document.getElementById('pdDepositMode')?.value==='amount')el.value=Number(el.value).toFixed(2)}},true);
 render();
 </script></body></html>
