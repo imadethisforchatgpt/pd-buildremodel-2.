@@ -1,0 +1,110 @@
+/* P&D 3.0 standalone smoke checks. Never connects to the 2.0 deployment or records. */
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const APP = 'http://127.0.0.1:8767/';
+const KEY = 'pd3_preview_records_v1';
+const LEGACY = 'pd2_test_records_v2';
+fs.mkdirSync('qa-screenshots/pd3', { recursive: true });
+function log(message) { console.log('[PD3 QA] ' + message); }
+async function open(page) {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto(APP, { waitUntil: 'load', timeout: 30000 });
+  await page.waitForTimeout(350);
+  assert.deepEqual(errors, [], 'Uncaught JavaScript errors: ' + errors.join('; '));
+  return errors;
+}
+async function data(page) {
+  return page.evaluate(key => JSON.parse(localStorage.getItem(key)), KEY);
+}
+async function run() {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const desktop = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+    const protected2 = '{"this":"is data belonging to another preview"}';
+    await desktop.addInitScript(({ name, value }) => localStorage.setItem(name, value), { name: LEGACY, value: protected2 });
+    const errors = await open(desktop);
+    assert.equal(await desktop.locator('body').evaluate(el => el.classList.contains('pd3-app')), true);
+    assert.match(await desktop.title(), /P&D 3.0/);
+    assert.equal(await desktop.locator('nav#nav').evaluate(el => getComputedStyle(el).position), 'fixed');
+    assert.equal(await desktop.locator('.pd3-stat').count(), 4);
+    assert.equal(await desktop.locator('.pd3-desktop-links [data-pd3-page="Dashboard"]').count(), 1);
+    assert.equal(await desktop.locator('.pd3-mobile-links').isVisible(), false);
+    await desktop.screenshot({ path: 'qa-screenshots/pd3/desktop-dashboard.png', fullPage: true });
+    log('Desktop premium dashboard renders');
+
+    await desktop.locator('.pd3-desktop-links [data-pd3-page="Clients"]').click();
+    assert.equal(await desktop.locator('#cname').isVisible(), true);
+    await desktop.locator('.pd3-desktop-links [data-pd3-more]').click();
+    assert.equal(await desktop.locator('#pd3MorePanel').isVisible(), true);
+    await desktop.locator('#pd3MorePanel [data-pd3-page="Settings"]').click();
+    assert.equal(await desktop.locator('#pd3MorePanel').isHidden(), true);
+    assert.match(await desktop.locator('#main').innerText(), /Data protection|Export Test Data/);
+    log('Desktop navigation and contextual menu work');
+
+    await desktop.locator('.pd3-desktop-links [data-pd3-page="Dashboard"]').click();
+    await desktop.locator('[data-pd3-action="new-estimate"]').first().click();
+    await desktop.locator('#eclient').fill('PD3 QA Customer');
+    await desktop.locator('#edesc').fill('Custom cabinet fabrication');
+    await desktop.locator('#lines .ldesc').first().fill('Build custom cabinet doors');
+    await desktop.locator('#lines .lqty').first().fill('2');
+    await desktop.locator('#lines .lprice').first().fill('375.50');
+    assert.match(await desktop.locator('#etotal').innerText(), /751\.00/);
+    await desktop.getByRole('button', { name: 'Save Estimate', exact: true }).click();
+    let records = await data(desktop);
+    assert.equal(records.estimates.length, 1, 'Estimate did not save to PD3 namespace');
+    assert.equal(records.estimates[0].total, 751);
+    assert.equal(records.estimates[0].client, 'PD3 QA Customer');
+    assert.equal(await desktop.evaluate(key => localStorage.getItem(key), LEGACY), protected2, '2.0 records changed');
+    assert.equal(await desktop.evaluate(() => localStorage.getItem('pd2_estimate_draft_1')), null, '2.0 draft key was used');
+    log('Estimate save, amounts, and separate PD3 namespace work');
+
+    await desktop.getByRole('button', { name: 'Convert to Invoice' }).first().click();
+    records = await data(desktop);
+    assert.equal(records.invoices.length, 1, 'Estimate was not converted');
+    assert.equal(records.invoices[0].total, 751);
+    await desktop.getByRole('button', { name: 'Record Payment' }).first().click();
+    await desktop.locator('#pdReceivedAmount').fill('200.00');
+    await desktop.locator('#pdReceivedMethod').selectOption({ label: 'Cash' });
+    await desktop.locator('#pdRecordPaymentForm button[type="submit"]').click();
+    records = await data(desktop);
+    assert.equal(records.invoices[0].paid, 200, 'Payment was not saved');
+    assert.equal(records.invoices[0].payments.length, 1, 'Payment ledger not saved');
+    await desktop.reload();
+    assert.equal((await data(desktop)).invoices[0].paid, 200, 'Refresh lost payment records');
+    assert.deepEqual(errors, [], 'Application errors during desktop workflow');
+    log('Conversion, payment tracking, and persistence work');
+
+    const mobileContext = await browser.newContext({
+      viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true
+    });
+    const iphone = await mobileContext.newPage();
+    await open(iphone);
+    assert.equal(await iphone.locator('.pd3-mobile-links').isVisible(), true);
+    assert.equal(await iphone.locator('.pd3-desktop-links').isVisible(), false);
+    assert.equal(await iphone.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2), true, 'Horizontal overflow on iPhone');
+    const position = await iphone.locator('#nav').evaluate(el => getComputedStyle(el).position);
+    assert.equal(position, 'fixed', 'Mobile navigation not fixed');
+    await iphone.screenshot({ path: 'qa-screenshots/pd3/iphone-dashboard.png', fullPage: true });
+    await iphone.locator('.pd3-mobile-links [data-pd3-more]').click();
+    assert.equal(await iphone.locator('#pd3MorePanel').isVisible(), true);
+    const menu = await iphone.locator('#pd3MorePanel').evaluate(el => {
+      const r = el.getBoundingClientRect();
+      return { top: r.top, bottom: r.bottom, left: r.left, right: r.right, height: innerHeight, width: innerWidth };
+    });
+    assert.ok(menu.top >= 0 && menu.bottom <= menu.height && menu.left >= 0 && menu.right <= menu.width,
+      'P&D 3.0 mobile More menu off-screen: ' + JSON.stringify(menu));
+    await iphone.screenshot({ path: 'qa-screenshots/pd3/iphone-more-menu.png' });
+    await iphone.locator('#pd3MorePanel [data-pd3-page="Projects"]').click();
+    assert.equal(await iphone.locator('#pname').isVisible(), true);
+    await iphone.locator('.pd3-mobile-links [data-pd3-page="Dashboard"]').click();
+    assert.equal(await iphone.locator('.pd3-stat').count(), 4);
+    log('iPhone dashboard, fixed navigation, menu geometry and routes work');
+
+    await mobileContext.close();
+    await desktop.close();
+    log('ALL P&D 3.0 CHECKS PASSED');
+  } finally { await browser.close(); }
+}
+run().catch(error => { console.error('[PD3 QA] FAILED', error); process.exitCode = 1; });
