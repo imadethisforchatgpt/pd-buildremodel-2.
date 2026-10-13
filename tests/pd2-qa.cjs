@@ -117,6 +117,23 @@ async function run(){
   log('Client and project creation passed');
   assert.deepEqual(flowErrors,[],'Runtime JavaScript errors: '+flowErrors.join('; '));
   await flow.screenshot({path:'qa-screenshots/after-projects-desktop.png',fullPage:true});
+  const liveUrl='https://pd2-editor-preview.onrender.com';
+  const published=await browser.newPage({viewport:{width:1440,height:900}});
+  await seed(published);await noJSFailures(published,liveUrl);
+  assert.equal(await published.locator('body').evaluate(el=>el.classList.contains('pd-command-body')),true,'Published Render site is missing redesigned shell');
+  assert.equal(await published.locator('.pd-command-stats .pd-command-stat').count(),4,'Published Render dashboard missing statistics');
+  const realLogo=await published.locator('header img.pd-real-mark').evaluate(img=>img.complete&&img.naturalWidth>0);
+  assert.ok(realLogo,'Published Render site missing original logo');
+  await published.screenshot({path:'qa-screenshots/live-render-desktop.png',fullPage:true});
+  const livePhone=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
+  const liveMobile=await livePhone.newPage();await seed(liveMobile);await noJSFailures(liveMobile,liveUrl);
+  assert.equal(await liveMobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true,'Published Render iPhone has horizontal overflow');
+  await liveMobile.locator('#pdMoreToggle').click();
+  const liveMenu=await liveMobile.locator('#pdMoreMenu').evaluate(e=>{const r=e.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,h:innerHeight,w:innerWidth}});
+  assert.ok(liveMenu.top>=0&&liveMenu.bottom<=liveMenu.h&&liveMenu.left>=0&&liveMenu.right<=liveMenu.w,'Published Render iPhone More menu is off-screen');
+  await liveMobile.screenshot({path:'qa-screenshots/live-render-iphone-more-menu.png'});
+  await livePhone.close();await published.close();
+  log('LIVE Render preview desktop and iPhone checks passed');
   await browser.close();
   log('ALL TESTS PASSED');
  }catch(error){await browser.close();throw error}
