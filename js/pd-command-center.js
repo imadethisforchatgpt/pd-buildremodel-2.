@@ -197,12 +197,81 @@ const previousForm=estimateForm;
 estimateForm=function(){previousForm();lineControls();const ed=document.getElementById('pdBlocksState');if(ed)ed.classList.add('pd-autosave-tag')};
 const previousEditEstimate=editEstimate;
 editEstimate=function(i){previousEditEstimate(i);lineControls()};
+
+function upgradeProjects(){
+ const root=document.getElementById('main'),projects=list(db.projects),cards=[...root.querySelectorAll('.project-card')];
+ const container=cards[0]?.parentElement||[...root.querySelectorAll('.panel')].slice(-1)[0];
+ if(!container)return;
+ const top=document.createElement('div');top.className='pd-operations-summary';
+ const counts={planned:projects.filter(x=>x.status==='Planned').length,active:projects.filter(x=>x.status==='In Progress').length,done:projects.filter(x=>x.status==='Completed').length};
+ top.innerHTML='<div><span>All projects</span><strong>'+projects.length+'</strong></div><div><span>In progress</span><strong>'+counts.active+'</strong></div><div><span>Planned</span><strong>'+counts.planned+'</strong></div><div><span>Completed</span><strong>'+counts.done+'</strong></div>';
+ const firstPanel=root.querySelector('.panel');if(firstPanel)firstPanel.before(top);
+ const filter=document.createElement('div');filter.className='pd-record-tools';
+ filter.innerHTML='<input class="search" aria-label="Search projects" placeholder="Search projects or customers…" id="pdSearchProjects">'+
+ '<select id="pdProjectStatus" aria-label="Filter project status"><option value="all">All statuses</option><option>Planned</option><option>In Progress</option><option>Completed</option></select>'+
+ '<select id="pdProjectSort" aria-label="Sort projects"><option value="recent">Newest first</option><option value="oldest">Oldest first</option><option value="customer">Customer A–Z</option></select>';
+ const heading=container.querySelector('h2');if(heading)heading.after(filter);else container.prepend(filter);
+ cards.forEach((card,i)=>{card.dataset.pdIndex=String(i);card.classList.add('pd-command-project');const x=projects[i];if(!x)return;
+  const foot=document.createElement('div');foot.className='pd-project-info';
+  foot.textContent=[x.start?'Started '+formattedDate(x.start):'',x.end?'Target '+formattedDate(x.end):'',x.address?'Jobsite: '+x.address:''].filter(Boolean).join(' · ');
+  if(foot.textContent)card.appendChild(foot);
+ });
+ function apply(){
+  const query=filter.querySelector('#pdSearchProjects').value.toLowerCase().trim(),status=filter.querySelector('#pdProjectStatus').value,sort=filter.querySelector('#pdProjectSort').value;
+  cards.sort((a,b)=>{const ia=Number(a.dataset.pdIndex),ib=Number(b.dataset.pdIndex);if(sort==='oldest')return ia-ib;if(sort==='customer')return (projects[ia]?.client||'').localeCompare(projects[ib]?.client||'');return ib-ia});
+  cards.forEach(card=>{const x=projects[Number(card.dataset.pdIndex)]||{};const q=[x.name,x.client,x.address,x.tasks].join(' ').toLowerCase();
+   card.style.display=(q.includes(query)&&(status==='all'||x.status===status))?'':'none';container.appendChild(card);
+  });
+ }
+ filter.addEventListener('input',apply);filter.addEventListener('change',apply);apply();
+}
+function upgradeClients(){
+ const root=document.getElementById('main'),clients=list(db.clients),docs=[...list(db.estimates),...list(db.invoices)];
+ const firstPanel=root.querySelector('.panel');if(!firstPanel)return;
+ const summary=document.createElement('div');summary.className='pd-operations-summary';
+ summary.innerHTML='<div><span>Saved customers</span><strong>'+clients.length+'</strong></div><div><span>Customers with documents</span><strong>'+clients.filter(c=>docs.some(d=>d.client===c.name)).length+'</strong></div><div><span>Estimates prepared</span><strong>'+db.estimates.length+'</strong></div><div><span>Invoices issued</span><strong>'+db.invoices.length+'</strong></div>';
+ firstPanel.before(summary);
+ const input=root.querySelector('#client-list')?.previousElementSibling;
+ if(input?.matches('input.search'))input.placeholder='Search name, phone or email…';
+ const cards=root.querySelectorAll('#client-list .invoice-card');cards.forEach(card=>card.classList.add('pd-command-client'));
+}
+async function exportFullBackup(button){
+ if(button.disabled)return;
+ const oldLabel=button.textContent;button.disabled=true;button.textContent='Preparing complete backup…';
+ let dbid;
+ try{
+  const photos=await new Promise((resolve,reject)=>{
+   const req=indexedDB.open('pd2-document-images',1);
+   req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('images'))req.result.createObjectStore('images')};
+   req.onerror=()=>reject(req.error||Error('Image storage unavailable'));
+   req.onsuccess=()=>{dbid=req.result;const tx=dbid.transaction('images','readonly'),store=tx.objectStore('images'),keys=store.getAllKeys(),values=store.getAll();
+    tx.oncomplete=()=>resolve(keys.result.map((id,i)=>({id:String(id),data:values.result[i]})));
+    tx.onerror=()=>reject(tx.error||Error('Photo export failed'));
+   };
+  });
+  const complete={format:'pd2-complete-backup-v1',exportedAt:new Date().toISOString(),records:db,photos};
+  const file=new Blob([JSON.stringify(complete)],{type:'application/json'}),url=URL.createObjectURL(file);
+  const a=document.createElement('a');a.href=url;a.download='PD2-complete-backup-'+day()+'.json';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),30000);
+  alert('Backup prepared with '+photos.length+' stored photo'+(photos.length===1?'':'s')+'. Save the downloaded file somewhere safe. This device still holds the working records.');
+ }catch(error){alert('Complete backup failed. No data was changed. '+(error?.message||'Browser storage unavailable'))}
+ finally{if(dbid)dbid.close();button.disabled=false;button.textContent=oldLabel}
+}
+function upgradeSettings(){
+ const root=document.getElementById('main');if(root.querySelector('#pdFullBackup'))return;
+ const panel=document.createElement('div');panel.className='panel';
+ panel.innerHTML='<h2>Protect your P&D 2.0 records</h2>'+
+ '<p class="muted">This is still a development preview. Estimates, invoices, customers and projects are stored in this browser. Project photos are stored separately in IndexedDB. A GitHub code backup does not include these records.</p>'+
+ '<button type="button" class="btn primary" id="pdFullBackup">Download complete data + photo backup</button>'+
+ '<p class="pd-safeguard-note">The complete download includes this browser’s records and stored document photos as a JSON file. Keep it securely; it can contain customer information. The existing basic JSON export does not include photos. Complete-backup restore is not yet built or tested — do not assume the file can be automatically imported into this preview.</p>';
+ root.prepend(panel);panel.querySelector('button').addEventListener('click',ev=>exportFullBackup(ev.currentTarget));
+}
 const previousRender=render;
 render=function(){
  previousRender();
  updateBrand();upgradeNav();
  if(tab==='Dashboard')dashboard();
- else {enhanceHeading();if(tab==='Estimates'||tab==='Invoices')enhancer(tab)}
+ else {enhanceHeading();if(tab==='Estimates'||tab==='Invoices')enhancer(tab);if(tab==='Projects')upgradeProjects();if(tab==='Clients')upgradeClients();if(tab==='Settings')upgradeSettings()}
 };
 document.addEventListener('input',e=>{if(e.target.closest('#lines')&&(e.target.matches('.lqty,.lprice')))lineControls()});
 document.addEventListener('click',e=>{if(e.target.closest('#lines')&&e.target.closest('.item-row .btn'))queueMicrotask(lineControls)});
