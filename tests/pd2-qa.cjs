@@ -170,7 +170,7 @@ async function run(){
   await published.screenshot({path:'qa-screenshots/live-render-desktop.png',fullPage:true});
   const liveLogoAsset=await published.request.get(liveUrl+'/assets/pd-invoice-roof.webp');
   assert.equal(liveLogoAsset.status(),200,'Deployed P&D invoice logo asset is not accessible');
-  assert.match(liveLogoAsset.headers()['content-type']||'',/image\\/webp/,'Deployed P&D invoice logo is not served as an image');
+  assert.ok((liveLogoAsset.headers()['content-type']||'').includes('image/webp'),'Deployed P&D invoice logo is not served as an image');
   await published.locator('nav [data-pd-tab="Invoices"]').click();
   await published.locator('#invoice-list .invoice-card .actions').first().getByRole('button',{name:'Preview',exact:true}).click();
   const liveInvoiceLogo=await published.locator('.paper .doc-brand img').evaluate(async img=>{await img.decode();return {src:img.currentSrc,width:img.getBoundingClientRect().width,naturalWidth:img.naturalWidth}});
