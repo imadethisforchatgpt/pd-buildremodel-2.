@@ -329,7 +329,7 @@ documentHTML=function(type,x,i){
  if(x.customerEmail)fields.push('<span><b>Email</b> '+esc(x.customerEmail)+'</span>');
  if(type==='invoice'&&x.dueDate)fields.push('<span><b>Due</b> '+esc(x.dueDate)+'</span>');
  if(fields.length)content=content.replace('<table class="paper-table">','<div class="pd-doc-extras">'+fields.join('')+'</div><table class="paper-table">');
- const paperCSS = \`<style id="pd-premium-paper-styles">
+ const paperCSS = `<style id="pd-premium-paper-styles">
   /* Screen previews maintain their branded, readable document layout. */
   .paper { background: #fff !important; border: 1px solid #dde7ef; box-shadow: none; }
   .paper .paper-top { background: #103c62 !important; }
@@ -444,7 +444,7 @@ documentHTML=function(type,x,i){
       print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important;
     }
   }
-  </style>\`;
+  </style>`;
  return paperCSS+content;
 };
 window.pdInvoiceForm=invoiceForm;
