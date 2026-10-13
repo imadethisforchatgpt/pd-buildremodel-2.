@@ -285,3 +285,35 @@ body.pd3-app main#main .pd3-finance-button{width:100%;margin-top:13px;padding:13
  html{scroll-behavior:auto;}
  nav#nav.pd3-nav button.pd3-nav-item{transition:none;}
 }
+
+
+/* Editable document identity and invoice payment terms */
+body.pd3-app .pd3-sender-field{margin:18px 0;padding:16px;background:#f3f8fc;border:1px solid #e2edf5;border-radius:12px}
+body.pd3-app .pd3-sender-field label{display:block;font-weight:750;color:#1d4664}
+body.pd3-app .pd3-sender-field p{margin:9px 0 0;line-height:1.5}
+body.pd3-app .pd3-identity-settings{border-left:4px solid #2e92c7!important}
+body.pd3-app .pd3-editor-overlay{position:fixed;inset:0;z-index:150;display:flex;align-items:center;justify-content:center;padding:14px;background:#081727a6;overscroll-behavior:contain}
+body.pd3-app .pd3-editor-dialog{width:min(620px,100%);max-height:min(90dvh,860px);overflow:auto;background:#fff;border:1px solid #dce7f0;border-radius:20px;box-shadow:0 26px 80px #0005;padding:24px}
+body.pd3-app .pd3-editor-top{display:flex;align-items:start;justify-content:space-between;gap:12px;border-bottom:1px solid #e9eff4;padding-bottom:16px;margin-bottom:18px}
+body.pd3-app .pd3-editor-top h2{font-size:23px;color:#153b59;letter-spacing:-.6px;margin:8px 0 4px}
+body.pd3-app .pd3-editor-top p{margin:0}
+body.pd3-app .pd3-close-editor{flex:0 0 38px;width:38px;height:38px;background:#f0f6fa;border:0;border-radius:10px;color:#294f6a;font-size:26px;line-height:1}
+body.pd3-app .pd3-editor-dialog label{display:block;color:#284a65;font-size:12px;font-weight:750;margin:12px 0 6px}
+body.pd3-app .pd3-editor-dialog input{width:100%;min-height:44px;margin-top:6px;border-radius:10px;padding:11px 12px;border:1px solid #d0dfeb;background:#fff;color:#1d3d54}
+body.pd3-app .pd3-terms-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:24px}
+body.pd3-app .pd3-terms-head strong{font-size:16px;color:#1a3d57}
+body.pd3-app .pd3-terms-head button{font-size:12px;min-height:40px;border-radius:9px}
+body.pd3-app .pd3-term-edit-row{border:1px solid #dce7ef;background:#f7fafc;border-radius:13px;padding:14px 16px;margin-top:12px}
+body.pd3-app .pd3-term-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+body.pd3-app .pd3-term-top strong{font-size:13px;color:#234b66}
+body.pd3-app .pd3-term-top span{font-size:12px;font-weight:800;color:#2773a0}
+body.pd3-app .pd3-editor-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;border-top:1px solid #e8eef3;padding-top:16px;margin-top:17px}
+body.pd3-app .pd3-editor-actions button{min-height:46px}
+@media(max-width:600px){
+ body.pd3-app .pd3-editor-overlay{align-items:end;padding:0}
+ body.pd3-app .pd3-editor-dialog{width:100%;border-radius:20px 20px 0 0;max-height:calc(94dvh - env(safe-area-inset-bottom,0px));padding:18px 17px calc(20px + env(safe-area-inset-bottom,0px))}
+ body.pd3-app .pd3-editor-top h2{font-size:21px}
+ body.pd3-app .pd3-terms-head{align-items:stretch;flex-direction:column}
+ body.pd3-app .pd3-term-edit-row{padding:12px}
+ body.pd3-app .pd3-editor-actions button{flex:1}
+}
