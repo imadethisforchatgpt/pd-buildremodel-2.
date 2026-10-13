@@ -66,7 +66,7 @@ function bind(){
   if(e.target.classList.contains('pd-block-width')){b.width=e.target.value;changed()}
   if(e.target.classList.contains('pd-block-file')&&e.target.files?.[0]){
    const input=e.target;input.disabled=true;
-   try{const data=await compress(input.files[0]);await storePhoto(b.id,data);b.src=b.id;changed();draw()}
+   try{const data=await compress(input.files[0]);const photoId=PDBlocks.make('photo').id;await storePhoto(photoId,data);b.src=photoId;changed();draw()}
    catch(error){alert('Photo could not be saved: '+error.message);input.disabled=false}
   }
  });
