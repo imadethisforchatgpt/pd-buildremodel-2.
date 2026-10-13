@@ -64,6 +64,7 @@ function bind(){
   const parent=e.target.closest('[data-block]');if(!parent)return;
   const b=blocks.find(x=>x.id===parent.dataset.block);if(!b)return;
   if(e.target.classList.contains('pd-block-width')){b.width=e.target.value;changed()}
+  if(e.target.classList.contains('pd-caption-position')){b.captionPosition=e.target.value;changed()}
   if(e.target.classList.contains('pd-block-file')&&e.target.files?.[0]){
    const input=e.target;input.disabled=true;
    try{const data=await compress(input.files[0]);const photoId=PDBlocks.make('photo').id;await storePhoto(photoId,data);b.src=photoId;changed();draw()}
@@ -118,8 +119,8 @@ async function hydrate(root){
 const oldSavedPreview=previewDoc;
 previewDoc=function(type,i){oldSavedPreview(type,i);hydrate(document.getElementById('main'))};
 
-async function addPhoto(file,width,caption){
- const b=PDBlocks.make('photo');b.width=width==='half'?'half':'full';b.caption=caption||'';
+async function addPhoto(file,width,caption,captionPosition){
+ const b=PDBlocks.make('photo');b.width=width==='half'?'half':'full';b.caption=caption||'';b.captionPosition=captionPosition==='above'?'above':'below';
  const data=await compress(file);const photoId=PDBlocks.make('photo').id;
  await storePhoto(photoId,data);b.src=photoId;blocks.push(b);draw();changed();
 }
