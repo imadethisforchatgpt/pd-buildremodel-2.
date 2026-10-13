@@ -5,7 +5,7 @@ const escape=s=>window.PDBlocks.escape(s);
 let blocks=[];
 let editing=null;
 const imgDB=()=>new Promise((resolve,reject)=>{
- const req=indexedDB.open('pd2-document-images',1);
+ const req=indexedDB.open('pd3-preview-document-images',1);
  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('images'))req.result.createObjectStore('images')};
  req.onsuccess=()=>resolve(req.result);
  req.onerror=()=>reject(req.error);
@@ -128,7 +128,7 @@ window.PDEditor={add,addPhoto,hydrate,loadPhoto};
 
 /* Draft recovery stores text, calculations, and photo references.
    Actual photos remain in the same browser's IndexedDB in test mode. */
-const DRAFT_KEY='pd2_estimate_draft_1';
+const DRAFT_KEY='pd3_preview_estimate_draft_v1';
 let draftTimer=null,restoringDraft=false;
 function saveWorkingDraft(){
  if(restoringDraft||editingEstimateIndex!==null||!document.getElementById('pdBlockEditor'))return;
