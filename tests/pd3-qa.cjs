@@ -204,6 +204,38 @@ async function run() {
     await iphone.locator('.pd3-mobile-links [data-pd3-page="Dashboard"]').click();
     assert.equal(await iphone.locator('.pd3-stat').count(), 4);
     log('iPhone dashboard, fixed navigation, menu geometry and routes work');
+    // Mobile print preview should scale the Letter page, not change its print dimensions.
+    await iphone.evaluate(() => {
+      db.invoices.push({
+        client:'Mobile Preview QA',description:'Custom cabinet installation',
+        lines:[{description:'Cabinet fabrication and installation',quantity:1,price:1250}],
+        total:1250,paid:0,payments:[],paymentSchedule:[],
+        preparedBy:'Papo Delvalle',date:'2026-10-13'
+      });
+      save();
+      go('Invoices');
+    });
+    const mobilePopupReady = iphone.waitForEvent('popup');
+    await iphone.getByRole('button',{name:'Print / PDF'}).first().click();
+    const mobilePrintPage = await mobilePopupReady;
+    await mobilePrintPage.locator('#pd3PrintFrame .paper').waitFor();
+    await mobilePrintPage.waitForFunction(() => {
+      const paper = document.querySelector('#pd3PrintFrame .paper');
+      return paper && document.querySelector('link[href*="pd3-print.css"]')?.sheet &&
+        paper.getBoundingClientRect().width <= innerWidth - 10;
+    });
+    const pageGeometry = await mobilePrintPage.evaluate(() => {
+      const r = document.querySelector('.paper').getBoundingClientRect();
+      return {visibleWidth:Math.round(r.width),screenWidth:innerWidth,scale:getComputedStyle(document.querySelector('.paper')).transform};
+    });
+    assert.ok(pageGeometry.visibleWidth <= pageGeometry.screenWidth - 10,
+      'Mobile Letter preview should fit the iPhone viewport: '+JSON.stringify(pageGeometry));
+    assert.equal(await mobilePrintPage.locator('#pd3PrintNow').isVisible(),true,
+      'Mobile PDF action should be easy to find');
+    assert.match(await mobilePrintPage.locator('.paper').innerText(),/Papo Delvalle/);
+    await mobilePrintPage.screenshot({path:'qa-screenshots/pd3/iphone-letter-pdf-preview.png',fullPage:true});
+    await mobilePrintPage.close();
+    log('iPhone paper preview scales to viewport, keeping print size as US Letter');
 
     await mobileContext.close();
     await desktop.close();
