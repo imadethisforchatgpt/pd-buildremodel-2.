@@ -206,3 +206,45 @@ body.pd-command-body .pd-payment-modal{border-radius:20px}
  body.pd-command-body>main#main .four input{font-size:13px!important;padding:7px 4px!important}
 }
 @media(prefers-reduced-motion:reduce){body.pd-command-body *,body.pd-command-body *:before{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Invoice studio and branded paper */
+body.pd-command-body>main#main #pdInvoiceEditor{max-width:1100px}
+body.pd-command-body>main#main #pdInvoiceEditor .form-section{margin-top:25px;border-top:1px solid #e8eef3;padding-top:23px}
+body.pd-command-body>main#main #pdInvoiceEditor #etotal{background:#0b3050!important;color:#fff!important;padding:21px!important;border-radius:13px;font-size:30px!important;font-weight:800;letter-spacing:-1px}
+body.pd-command-body>main#main #pdInvoiceDepositWrap{max-width:330px;margin:15px 0}
+body.pd-command-body>main#main #pdInvoiceDepositWrap[hidden]{display:none}
+body.pd-command-body>main#main #pdInvoicePlanPreview{margin:12px 0;padding:15px;background:#f4f9fc;border:1px solid #ddebf4;box-shadow:none;min-height:53px}
+body.pd-command-body>main#main #pdInvoicePlanPreview .pd-command-row{padding:9px 0}
+body.pd-command-body>main#main #pdInvoicePlanPreview .pd-command-row:first-child{border:0}
+body.pd-command-body>main#main .pd-inline-doc-preview{margin:22px auto;max-width:1080px}
+body.pd-command-body>main#main .paper{background:white!important;border:1px solid #dce6ef!important;overflow:hidden}
+body.pd-command-body>main#main .paper .paper-top{background:#0a4069!important}
+body.pd-command-body>main#main .paper .paper-head{border-bottom:2px solid #d8e7f1;margin-bottom:18px;padding-bottom:19px}
+body.pd-command-body>main#main .paper .doc-brand img{max-width:110px!important;max-height:72px!important;width:auto!important;height:auto!important;object-fit:contain}
+body.pd-command-body>main#main .paper .paper-title h2{font-size:25px!important;color:#123e60!important;letter-spacing:2px!important}
+body.pd-command-body>main#main .paper .paper-table{border-collapse:collapse;width:100%}
+body.pd-command-body>main#main .paper .paper-table thead th{background:#e8f1f8!important;color:#184869!important;border-bottom:1px solid #bfd4e3!important}
+body.pd-command-body>main#main .paper .paper-table tr{break-inside:avoid}
+body.pd-command-body>main#main .paper .paper-totals{background:#f2f7fb!important;border-radius:11px;padding:15px!important;margin-top:18px}
+body.pd-command-body>main#main .paper .paper-foot{break-inside:avoid}
+body.pd-command-body>main#main .paper .pd-doc-extras{display:flex;flex-wrap:wrap;gap:8px 20px;margin:12px 0 21px;font-size:11px;line-height:1.5;color:#4b6e84}
+body.pd-command-body>main#main .paper .pd-doc-extras span{overflow-wrap:anywhere}
+body.pd-command-body>main#main .paper .pd-doc-extras b{color:#173b58;padding-right:4px}
+@media(max-width:860px){
+ body.pd-command-body>main#main .two{grid-template-columns:1fr!important;gap:9px}
+ body.pd-command-body>main#main #lines .four{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 40px!important;gap:8px!important}
+ body.pd-command-body>main#main #lines .four>:first-child{grid-column:1 / -1}
+ body.pd-command-body>main#main #lines .four>:nth-child(2){grid-column:1;grid-row:2}
+ body.pd-command-body>main#main #lines .four>:nth-child(3){grid-column:2;grid-row:2}
+ body.pd-command-body>main#main #lines .four>:nth-child(4){grid-column:3;grid-row:2;align-self:end}
+ body.pd-command-body>main#main #lines .four label{font-size:12px!important}
+ body.pd-command-body>main#main #lines .four input{min-height:42px!important;font-size:16px!important;padding:9px 10px!important}
+ body.pd-command-body>main#main .paper .paper-head{flex-wrap:wrap}
+ body.pd-command-body>main#main .paper .doc-brand img{max-width:80px!important}
+ body.pd-command-body>main#main .paper .paper-title h2{font-size:20px!important}
+ body.pd-command-body>main#main #pdInvoiceEditor #etotal{font-size:25px!important}
+ body.pd-command-body>main#main .pd-doc-extras{gap:6px 12px}
+}
+@media(max-width:400px){
+ body.pd-command-body>header .tag{display:none!important}
+}
