@@ -248,3 +248,27 @@ body.pd-command-body>main#main .paper .pd-doc-extras b{color:#173b58;padding-rig
 @media(max-width:400px){
  body.pd-command-body>header .tag{display:none!important}
 }
+
+/* Customer and project operations */
+body.pd-command-body>main#main .pd-operations-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px auto 19px}
+body.pd-command-body>main#main .pd-operations-summary>div{min-width:0;background:#fff;border:1px solid #dce6ee;border-radius:14px;padding:19px 17px;box-shadow:0 4px 16px #11335109}
+body.pd-command-body>main#main .pd-operations-summary span{display:block;font-size:12px;color:#668094;font-weight:750;line-height:1.4;margin-bottom:9px}
+body.pd-command-body>main#main .pd-operations-summary strong{display:block;color:#113a58;font-size:28px;line-height:1.1;letter-spacing:-1px}
+body.pd-command-body>main#main .pd-record-tools{padding:3px 0 9px}
+body.pd-command-body>main#main .pd-record-tools input.search{max-width:none!important;flex:1 1 220px}
+body.pd-command-body>main#main .pd-record-tools select{max-width:210px;flex:0 1 200px}
+body.pd-command-body>main#main .pd-command-project{border-left:4px solid #1885bd!important;padding:19px!important}
+body.pd-command-body>main#main .pd-command-project .status-picker{font-weight:700;color:#135e89}
+body.pd-command-body>main#main .pd-command-project .project-extra .actions{margin-bottom:3px}
+body.pd-command-body>main#main .pd-project-info{padding-top:11px;margin-top:13px;border-top:1px solid #e6edf2;color:#6d8497;font-size:12px;line-height:1.5}
+body.pd-command-body>main#main .pd-command-client{border-left:4px solid #73b2d9!important}
+body.pd-command-body>main#main .pd-command-client .client-extra{margin-top:10px}
+body.pd-command-body>main#main #pdFullBackup{margin-top:12px}
+@media(max-width:1050px){body.pd-command-body>main#main .pd-operations-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:860px){
+ body.pd-command-body>main#main .pd-operations-summary{gap:9px}
+ body.pd-command-body>main#main .pd-operations-summary>div{padding:15px 13px}
+ body.pd-command-body>main#main .pd-operations-summary strong{font-size:23px}
+ body.pd-command-body>main#main .pd-record-tools{display:grid;grid-template-columns:1fr;gap:8px}
+ body.pd-command-body>main#main .pd-record-tools select,body.pd-command-body>main#main .pd-record-tools input.search{width:100%!important;max-width:none!important}
+}
