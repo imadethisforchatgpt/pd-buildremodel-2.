@@ -112,7 +112,7 @@
     root.innerHTML =
       '<section class="pd3-heading"><div><span class="pd3-kicker">YOUR BUSINESS, BEAUTIFULLY ORGANIZED</span>' +
       '<h1>Good to have you here.</h1><p>Every project. Every client. One place to keep moving forward.</p></div>' +
-      '<span class="pd3-preview-mark"><span class="pd3-status-dot"></span> PRIVATE PREVIEW · 3.0</span></section>' +
+      '<span class="pd3-preview-mark"><span class="pd3-status-dot"></span> 3.0 DEVELOPMENT BUILD</span></section>' +
       '<section class="pd3-hero"><div><div class="pd3-hero-kicker">P&D BUILD&REMODEL / WORKSPACE</div>' +
       '<h2>Build with precision.<br><em>Run business with ease.</em></h2>' +
       '<p>Make your next estimate, follow up on invoices, and keep every job on track.</p>' +
@@ -150,7 +150,7 @@
     if (tab === 'Dashboard') drawDashboard();
     else {
       main.insertAdjacentHTML('afterbegin', '<div class="pd3-page-top"><span class="pd3-kicker">P&D STUDIO / ' +
-        esc(tab).toUpperCase() + '</span><span class="pd3-page-version">3.0 PRIVATE PREVIEW</span></div>');
+        esc(tab).toUpperCase() + '</span><span class="pd3-page-version">3.0 DEVELOPMENT BUILD</span></div>');
     }
   };
 
