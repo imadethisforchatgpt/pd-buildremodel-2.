@@ -22,8 +22,9 @@
      (typeof db.businessProfile?.preparedBy==='string'&&db.businessProfile.preparedBy.trim()) || 'Papo Delvalle';
    const issued=date(record.invoiceDate||record.date)||date(new Date().toISOString());
    const valid=date(record.validUntil||record.expirationDate||record.expiryDate);
-   const photoBlocks=(record.contentBlocks||[]).filter(b=>b?.type==='photo'&&b.src);
-   const otherBlocks=(record.contentBlocks||[]).filter(b=>b?.type!=='photo');
+   const blocks=Array.isArray(record.contentBlocks)?record.contentBlocks:[];
+   const photoBlocks=blocks.filter(b=>b?.type==='photo'&&b.src);
+   const otherBlocks=blocks.filter(b=>b?.type!=='photo');
    const notes=record.notes||'';
    const warranty=record.warranty||'';
    const schedule=Array.isArray(record.paymentSchedule)?record.paymentSchedule:[];
