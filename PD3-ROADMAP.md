@@ -23,13 +23,13 @@ P&D 3.0 should feel as approachable as the original P&D Estimates & Invoices app
 
 ## Work sequence
 - [x] Establish isolated GitHub branch from the preserved backup.
-- [ ] Inspect navigation and core flows in the current code.
+- [x] Inspect navigation and core flows in the current code.
 - [ ] Review reference app's actual UI with authorized screenshots or direct inspection.
-- [ ] Design and implement a distinct P&D 3.0 identity and unified navigation.
-- [ ] Streamline estimate, invoice, and payment flows.
+- [x] Implement first-pass P&D 3.0 identity, desktop sidebar, iPhone navigation, and dedicated dashboard.
+- [ ] Streamline estimate, invoice, and payment flows beyond the inherited functionality.
 - [ ] Improve client management and document/photos workflows.
-- [ ] Run mobile/desktop QA, persistence tests, and document output tests.
-- [ ] Deploy to a separate P&D 3.0 preview with independent test data.
+- [x] Add isolated automated mobile/desktop, persistence, estimate, invoice and payment smoke tests.\n- [ ] Confirm those tests pass and review generated screenshots and document output.
+- [x] Use separate 3.0 localStorage, IndexedDB photo storage, and estimate draft recovery keys.\n- [ ] Deploy to a separate P&D 3.0 preview after the Render workspace is confirmed.
 - [ ] Compare original, 2.0 and 3.0 with the owner before considering a winner.
 
 ## Release rule
