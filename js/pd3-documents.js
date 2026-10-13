@@ -4,8 +4,11 @@
   'use strict';
 
   const APP_NAME = 'P&D Build&Remodel';
+  const DEFAULT_PREPARER = 'Papo Delvalle';
   function profileName() {
-    return typeof db.businessProfile?.preparedBy === 'string' ? db.businessProfile.preparedBy.trim() : '';
+    // A previously saved owner preference always takes precedence over the default.
+    return typeof db.businessProfile?.preparedBy === 'string'
+      ? db.businessProfile.preparedBy.trim() : DEFAULT_PREPARER;
   }
   function displayName(record) {
     return (typeof record?.preparedBy === 'string' && record.preparedBy.trim()) || profileName();
