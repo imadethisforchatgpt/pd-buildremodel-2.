@@ -40,6 +40,9 @@ async function run(){
   assert.match(await desktop.locator('.pd-command-stats').innerText(),/\$400\.00/);
   const logo=await desktop.locator('header img.pd-real-mark').evaluate(img=>({loaded:img.complete&&img.naturalWidth>0,src:img.currentSrc}));
   assert.ok(logo.loaded,'Original P&D logo is missing: '+logo.src);
+  assert.ok(logo.src.includes('/assets/pd-logo.png'),'App must use the official full P&D emblem');
+  const fullLogoWidth=await desktop.locator('header img.pd-real-mark').evaluate(el=>el.getBoundingClientRect().width);
+  assert.ok(fullLogoWidth>=60,'App full emblem is too small: '+fullLogoWidth);
   await desktop.screenshot({path:'qa-screenshots/after-desktop.png',fullPage:true});
   log('Desktop layout and financial data checks passed');
   const baselineMobile=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
@@ -104,6 +107,22 @@ async function run(){
   assert.equal(data.invoices[0].paid,100,'Invoice edit changed actual payments');
   assert.equal(data.invoices[0].payments.length,1,'Invoice edit discarded payment history');
   log('Payment ledger, invoice editing and history preservation passed');
+  // Branding regression: never substitute the dark master logo on a white invoice.
+  await flow.locator('#invoice-list .invoice-card .actions').first().getByRole('button',{name:'Preview',exact:true}).click();
+  const invoiceLogo=await flow.locator('.paper .doc-brand img').evaluate(async image=>{await image.decode();const r=image.getBoundingClientRect();return {width:r.width,height:r.height,naturalWidth:image.naturalWidth,src:image.currentSrc}});
+  assert.ok(invoiceLogo.src.endsWith('/assets/pd-invoice-roof.webp'),'Invoice is not using the official light-background P&D roofline logo: '+invoiceLogo.src);
+  assert.ok(invoiceLogo.width>=290 && invoiceLogo.naturalWidth>=400,'Invoice logo is missing or too small: '+JSON.stringify(invoiceLogo));
+  await flow.screenshot({path:'qa-screenshots/after-invoice-branded-preview.png',fullPage:true});
+  const invoicePaper=await flow.evaluate(()=>documentHTML('invoice',db.invoices[0],0));
+  const printPage=await browser.newPage({viewport:{width:900,height:1100}});
+  await printPage.setContent('<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0"><main>'+invoicePaper+'</main></body></html>',{waitUntil:'load'});
+  const printableLogo=await printPage.locator('.paper .doc-brand img').evaluate(async image=>{await image.decode();return {width:image.getBoundingClientRect().width,naturalWidth:image.naturalWidth,src:image.currentSrc}});
+  assert.ok(printableLogo.src.endsWith('/assets/pd-invoice-roof.webp') && printableLogo.width>=290,'Printable PDF logo is incorrect or too small: '+JSON.stringify(printableLogo));
+  await printPage.pdf({path:'qa-screenshots/pd2-branded-invoice-test.pdf',format:'Letter',printBackground:true});
+  await printPage.screenshot({path:'qa-screenshots/after-invoice-paper.png',fullPage:true});
+  await printPage.close();
+  await flow.locator('nav [data-pd-tab="Invoices"]').click();
+  log('Official invoice roofline logo and printed PDF layout passed');
   await flow.locator('nav [data-pd-tab="Estimates"]').click();
   await flow.getByRole('button',{name:/New Estimate/}).first().click();
   await flow.locator('#eclient').fill('QA Estimate Customer');
@@ -114,6 +133,11 @@ async function run(){
   data=await storage(flow);assert.equal(data.estimates.length,1);
   assert.equal(data.estimates[0].status,'Draft');
   log('Estimate creation and Draft tracking passed');
+  await flow.locator('#estimate-list .invoice-card').first().getByRole('button',{name:'Preview',exact:true}).click();
+  const estimateLogo=await flow.locator('.paper .doc-brand img').evaluate(async image=>{await image.decode();return {width:image.getBoundingClientRect().width,src:image.currentSrc}});
+  assert.ok(estimateLogo.src.endsWith('/assets/pd-invoice-roof.webp')&&estimateLogo.width>=290,'Estimate logo missing or too small: '+JSON.stringify(estimateLogo));
+  await flow.locator('nav [data-pd-tab="Estimates"]').click();
+  log('Official P&D estimate branding passed');
   await flow.locator('nav [data-pd-tab="Clients"]').click();
   await flow.locator('#cname').fill('QA Additional Client');
   await flow.getByRole('button',{name:/Save Client/}).click();
