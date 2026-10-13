@@ -6,7 +6,7 @@ body.pd-command-body{margin:0!important;padding-left:264px;background:var(--pdcc
 body.pd-command-body *,body.pd-command-body *:before,body.pd-command-body *:after{box-sizing:border-box}
 body.pd-command-body>header{position:fixed!important;top:0;left:0;z-index:51;width:264px;height:146px;display:flex;align-items:flex-start;flex-direction:column;justify-content:center;gap:13px;padding:21px 22px!important;background:var(--pdcc-deep)!important;border-bottom:1px solid #ffffff15!important;box-shadow:none!important}
 body.pd-command-body>header .brand{display:flex;align-items:center;gap:12px;min-width:0;color:#fff!important;font-size:0!important;line-height:1.15}
-body.pd-command-body>header .pd-real-mark{width:48px;height:48px;object-fit:contain;flex-shrink:0;border-radius:8px;background:#fff;padding:4px}
+body.pd-command-body>header .pd-real-mark{width:68px;height:67px;object-fit:contain;flex-shrink:0;border-radius:0;background:transparent;padding:0}
 body.pd-command-body>header .pd-brand-copy{min-width:0}
 body.pd-command-body>header .pd-brand-copy strong{display:block;color:#fff;font-size:18px;font-weight:850;letter-spacing:-.6px}
 body.pd-command-body>header .pd-brand-copy small{display:block;color:#8eb0c9!important;font-size:10px!important;font-weight:600;letter-spacing:1.2px!important;margin:4px 0 0}
@@ -148,7 +148,7 @@ body.pd-command-body .pd-payment-modal{border-radius:20px}
  body.pd-command-body{padding:0!important;background:#f4f7fa!important}
  body.pd-command-body>header{position:sticky!important;top:0;left:0;width:100%;height:73px;z-index:60;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px!important;background:#fff!important;border-bottom:1px solid #e0e8ef!important;box-shadow:0 4px 20px #0b2b4810!important}
  body.pd-command-body>header .brand{color:#0d2b43!important}
- body.pd-command-body>header .pd-real-mark{width:42px;height:42px;padding:1px;background:transparent}
+ body.pd-command-body>header .pd-real-mark{width:55px;height:53px;padding:0;background:transparent}
  body.pd-command-body>header .pd-brand-copy strong{color:#123650;font-size:16px}
  body.pd-command-body>header .pd-brand-copy small{color:#718da1!important;letter-spacing:1px!important;font-size:9px!important}
  body.pd-command-body>header .tag{background:#e9f4fb!important;color:#196c9d!important;border-color:#c8e3f1!important;font-size:9px!important}
@@ -220,7 +220,7 @@ body.pd-command-body>main#main .pd-inline-doc-preview{margin:22px auto;max-width
 body.pd-command-body>main#main .paper{background:white!important;border:1px solid #dce6ef!important;overflow:hidden}
 body.pd-command-body>main#main .paper .paper-top{background:#0a4069!important}
 body.pd-command-body>main#main .paper .paper-head{border-bottom:2px solid #d8e7f1;margin-bottom:18px;padding-bottom:19px}
-body.pd-command-body>main#main .paper .doc-brand img{max-width:110px!important;max-height:72px!important;width:auto!important;height:auto!important;object-fit:contain}
+body.pd-command-body>main#main .paper .paper-head .doc-brand img{width:min(100%,400px)!important;max-width:100%!important;max-height:152px!important;height:auto!important;object-fit:contain!important;background:white!important;margin:0 auto!important}
 body.pd-command-body>main#main .paper .paper-title h2{font-size:25px!important;color:#123e60!important;letter-spacing:2px!important}
 body.pd-command-body>main#main .paper .paper-table{border-collapse:collapse;width:100%}
 body.pd-command-body>main#main .paper .paper-table thead th{background:#e8f1f8!important;color:#184869!important;border-bottom:1px solid #bfd4e3!important}
@@ -240,7 +240,7 @@ body.pd-command-body>main#main .paper .pd-doc-extras b{color:#173b58;padding-rig
  body.pd-command-body>main#main #lines .four label{font-size:12px!important}
  body.pd-command-body>main#main #lines .four input{min-height:42px!important;font-size:16px!important;padding:9px 10px!important}
  body.pd-command-body>main#main .paper .paper-head{flex-wrap:wrap}
- body.pd-command-body>main#main .paper .doc-brand img{max-width:80px!important}
+ body.pd-command-body>main#main .paper .paper-head .doc-brand img{width:min(100%,350px)!important;max-width:100%!important;max-height:130px!important;height:auto!important}
  body.pd-command-body>main#main .paper .paper-title h2{font-size:20px!important}
  body.pd-command-body>main#main #pdInvoiceEditor #etotal{font-size:25px!important}
  body.pd-command-body>main#main .pd-doc-extras{gap:6px 12px}
