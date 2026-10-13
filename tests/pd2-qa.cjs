@@ -125,6 +125,10 @@ async function run(){
   const printableLogo=await printPage.locator('.paper .doc-brand img').evaluate(async image=>{await image.decode();return {width:image.getBoundingClientRect().width,naturalWidth:image.naturalWidth,src:image.currentSrc}});
   assert.ok(printableLogo.src.endsWith('/assets/pd-invoice-roof.webp') && printableLogo.width>=290,'Printable PDF logo is incorrect or too small: '+JSON.stringify(printableLogo));
   await printPage.pdf({path:'qa-screenshots/pd2-branded-invoice-test.pdf',format:'Letter',printBackground:true});
+  const singlePagePDF=fs.readFileSync('qa-screenshots/pd2-branded-invoice-test.pdf','latin1');
+  const pdfPageCount=(singlePagePDF.match(/\\/Type\\s*\\/Page\\b/g)||[]).length;
+  assert.equal(pdfPageCount,1,'Simple single-line P&D invoice should fit on one printed PDF page');
+  await printPage.emulateMedia({media:'print'});
   await printPage.screenshot({path:'qa-screenshots/after-invoice-paper.png',fullPage:true});
   await printPage.close();
   await flow.locator('nav [data-pd-tab="Invoices"]').click();
