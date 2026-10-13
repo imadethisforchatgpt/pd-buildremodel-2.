@@ -32,10 +32,12 @@ P&D 3.0 should feel as approachable as the original P&D Estimates & Invoices app
 - [ ] Improve client management and document/photos workflows.
 - [x] Add isolated automated mobile/desktop, persistence, estimate, invoice and payment smoke tests.
 - [x] Confirm expanded GitHub Actions checks pass for payment conditions, invoice branding, edits, data isolation and payment preservation.
-- [ ] Review generated screenshots manually and verify printing on mobile devices.
+- [x] Automatically validate generated US Letter PDFs: compact single-page invoice, 54-line three-page invoice, full content retention, correctly sized brand, and iPhone-fit paper preview.
+- [ ] Review generated screenshots manually and confirm iPhone Safari printing on a physical device.
 - [x] Use separate 3.0 localStorage, IndexedDB photo storage, and estimate draft recovery keys.
 - [x] Create the separate P&D 3.0 Render static site in the confirmed workspace with auto deploy disabled.
-- [ ] Manually redeploy updated payment and document controls to the 3.0 preview.
+- [x] Manually redeploy updated payment and document controls to the 3.0 preview.
+- [ ] Deploy separate US Letter print/PDF enhancement and verify production preview.
 - [ ] Compare original, 2.0 and 3.0 with the owner before considering a winner.
 
 ## Future considerations
