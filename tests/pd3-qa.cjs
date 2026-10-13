@@ -2,6 +2,7 @@
 const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const { execFileSync } = require('node:child_process');
 const APP = 'http://127.0.0.1:8767/';
 const KEY = 'pd3_preview_records_v1';
 const LEGACY = 'pd2_test_records_v2';
@@ -118,6 +119,61 @@ async function run() {
     assert.match(await desktop.locator('#main').innerText(), /Prepared by:\s*PD3 QA Owner Revised/);
     assert.match(await desktop.locator('#main').innerText(), /Upon completion of work/);
     log('Invoice editing, 50/50 reset, branded preview and payment isolation work');
+
+    // PDF printing must be sized as US Letter, not an enlarged mobile web page.
+    let popupReady = desktop.waitForEvent('popup');
+    await desktop.getByRole('button', {name:'Print / Save PDF'}).first().click();
+    let printPage = await popupReady;
+    await printPage.locator('#pd3PrintFrame .paper').waitFor();
+    await printPage.waitForFunction(() => Boolean(document.querySelector('link[href*="pd3-print.css"]')?.sheet));
+    assert.match(await printPage.title(), /Invoice/);
+    assert.equal(await printPage.locator('.pd3-print-actions #pd3PrintNow').isVisible(), true);
+    const previewWidth = await printPage.locator('.paper').evaluate(el => Math.round(el.getBoundingClientRect().width));
+    assert.equal(previewWidth, 816, 'Desktop document preview should show a physical Letter-sized page');
+    assert.equal(await printPage.locator('.paper-head .doc-brand img').evaluate(el => Math.round(el.getBoundingClientRect().height)), 55,
+      'Print logo should be document-sized rather than giant mobile branding');
+    await printPage.screenshot({path:'qa-screenshots/pd3/letter-invoice-preview.png',fullPage:true});
+    const singlePdfPath = 'qa-screenshots/pd3/letter-invoice.pdf';
+    await printPage.pdf({path:singlePdfPath, preferCSSPageSize:true, printBackground:true});
+    const details = execFileSync('pdfinfo',[singlePdfPath],{encoding:'utf8'});
+    assert.match(details,/Page size:\s+612 x 792 pts/, 'PDF must be 8.5 x 11 inches');
+    assert.equal(Number(details.match(/Pages:\s+(\d+)/)?.[1]), 1, 'Short invoice should use exactly one Letter page');
+    const contents = execFileSync('pdftotext',['-layout',singlePdfPath,'-'],{encoding:'utf8'});
+    assert.match(contents,/Prepared by:\s*PD3 QA Owner Revised/);
+    assert.match(contents,/Upon completion of work/);
+    await printPage.close();
+    log('Single-page invoice prints on US Letter with correctly sized branding and complete payment terms');
+
+    // A longer invoice must paginate cleanly instead of zooming to one page.
+    await desktop.evaluate(() => {
+      const original = db.invoices[0];
+      const lines = Array.from({length:54}, (_,i) => ({
+        description:'Custom carpentry installation line '+String(i+1).padStart(2,'0')+' — materials and finish details',
+        quantity:1,price:35
+      }));
+      db.invoices.push({...original,client:'PD3 Multi-page QA',description:'Full kitchen cabinetry project',
+        lines,total:lines.length*35,paid:0,payments:[],paymentSchedule:[],
+        preparedBy:'PD3 QA Owner Revised',invoiceDate:'2026-10-13'});
+      save();
+      render();
+    });
+    await desktop.locator('.invoice-card').nth(1).getByRole('button',{name:'Preview',exact:true}).click();
+    popupReady = desktop.waitForEvent('popup');
+    await desktop.getByRole('button',{name:'Print / Save PDF'}).first().click();
+    printPage = await popupReady;
+    await printPage.waitForFunction(() => Boolean(document.querySelector('link[href*="pd3-print.css"]')?.sheet));
+    const multipagePdfPath = 'qa-screenshots/pd3/letter-multi-page-invoice.pdf';
+    await printPage.pdf({path:multipagePdfPath,preferCSSPageSize:true,printBackground:true});
+    const multiDetails = execFileSync('pdfinfo',[multipagePdfPath],{encoding:'utf8'});
+    const pageCount = Number(multiDetails.match(/Pages:\s+(\d+)/)?.[1]);
+    assert.ok(pageCount >= 2, 'A 54-line invoice should continue onto multiple pages; got '+pageCount);
+    assert.match(multiDetails,/Page size:\s+612 x 792 pts/);
+    const multiText = execFileSync('pdftotext',['-layout',multipagePdfPath,'-'],{encoding:'utf8'});
+    assert.match(multiText,/Custom carpentry installation line 01/,'First line missing');
+    assert.match(multiText,/Custom carpentry installation line 54/,'Final line missing from continuation page');
+    assert.match(multiText,/PD3 Multi-page QA/);
+    await printPage.close();
+    log('Long invoices automatically paginate across '+pageCount+' US Letter pages with all line items');
     await desktop.reload();
     assert.equal((await data(desktop)).invoices[0].paid, 200, 'Refresh lost payment records');
     assert.deepEqual(errors, [], 'Application errors during desktop workflow');
