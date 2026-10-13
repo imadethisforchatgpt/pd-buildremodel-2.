@@ -124,7 +124,14 @@ async function addPhoto(file,width,caption,captionPosition){
  const data=await compress(file);const photoId=PDBlocks.make('photo').id;
  await storePhoto(photoId,data);b.src=photoId;blocks.push(b);draw();changed();
 }
-window.PDEditor={add,addPhoto,hydrate,loadPhoto};
+// Reuse the same IndexedDB image store for invoice photos without modifying estimate blocks.
+async function storeInvoicePhoto(file){
+ const data=await compress(file);
+ const id=PDBlocks.make('photo').id;
+ await storePhoto(id,data);
+ return id;
+}
+window.PDEditor={add,addPhoto,hydrate,loadPhoto,storeInvoicePhoto};
 
 /* Draft recovery stores text, calculations, and photo references.
    Actual photos remain in the same browser's IndexedDB in test mode. */
