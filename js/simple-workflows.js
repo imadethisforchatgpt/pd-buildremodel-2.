@@ -328,7 +328,11 @@ documentHTML=function(type,x,i){
  if(x.customerEmail)fields.push('<span><b>Email</b> '+esc(x.customerEmail)+'</span>');
  if(type==='invoice'&&x.dueDate)fields.push('<span><b>Due</b> '+esc(x.dueDate)+'</span>');
  if(fields.length)content=content.replace('<table class="paper-table">','<div class="pd-doc-extras">'+fields.join('')+'</div><table class="paper-table">');
- return content;
+ const paperCSS='<style id="pd-premium-paper-styles">'+
+ '.paper{background:white!important;border:1px solid #dde7ef;box-shadow:none}.paper-top{background:#103c62!important;min-height:11px!important}.paper-inner{padding:27px!important}.paper-head{border-bottom:2px solid #dceaf4;padding-bottom:18px;margin-bottom:20px;break-inside:avoid}.paper .doc-brand img{width:auto!important;height:auto!important;max-width:115px!important;max-height:72px!important;object-fit:contain}.paper .firm{color:#143955!important;font-weight:800;letter-spacing:-.5px}.paper .paper-title h2{color:#113e60!important;letter-spacing:2px!important}.paper .paper-meta{break-inside:avoid}.paper .paper-table{width:100%;border-collapse:collapse}.paper .paper-table thead th{background:#eaf3fa!important;color:#16486c!important;border-bottom:1px solid #c6dbe9!important;text-align:left}.paper .paper-table tr{break-inside:avoid}.paper .paper-table td{border-bottom:1px solid #e9eef3;vertical-align:top}.paper .paper-totals{background:#f2f8fc!important;border-radius:10px!important;padding:14px!important;margin-top:15px;break-inside:avoid}.paper .paper-foot{break-inside:avoid}.paper .pd-doc-extras{display:flex;flex-wrap:wrap;gap:8px 17px;font-size:11px;color:#45657e;margin:10px 0 19px}.paper .pd-doc-extras b{color:#143c5b;margin-right:4px}.paper img{max-width:100%}.paper .pd-doc-photo{break-inside:avoid}'+
+ '@media print{@page{size:letter;margin:12mm}body{background:white!important}main{max-width:none!important;width:100%!important;padding:0!important;margin:0!important}.paper{box-shadow:none!important;border:0!important;break-inside:auto!important;overflow:visible!important}.paper-inner{padding:0!important}.paper .paper-table thead{display:table-header-group}.paper .paper-table tr{break-inside:avoid}.paper .paper-head,.paper .paper-meta,.paper .paper-totals{break-inside:avoid}.paper .paper-top,.paper .paper-table thead th,.paper .paper-totals{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'+
+ '</style>';
+ return paperCSS+content;
 };
 window.pdInvoiceForm=invoiceForm;
 window.pdSaveInvoice=submitInvoice;
