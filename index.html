@@ -111,7 +111,7 @@ label{font-size:11px;letter-spacing:.1px;margin:10px 0 5px;color:#455e74}
 .doc-actions{gap:7px;margin:13px 0}
 @media(max-width:760px){main{padding:16px 12px 65px}.panel{padding:15px}.hero{padding:17px}.hero h1{font-size:22px}.quick-grid{gap:7px}.quick{padding:11px}.grid{gap:7px}.stat{padding:12px;min-height:93px}.stat strong{font-size:19px}.stat .muted{font-size:10px}.brand{font-size:17px}}
 @media(max-width:390px){.hero{display:block}.hero .btn{margin-top:12px}.stat strong{font-size:16px}.stat{padding:10px 8px}.quick-icon{width:32px;height:32px}}
-</style><style id="workflow-ui">main:has(#estimate-list) .invoice-card .actions{align-items:center}main:has(#estimate-list) .invoice-card .actions .btn{min-height:34px}main:has(#lines) .item-row input:focus{background:#fff}.panel:focus-within{border-color:#d3e2ef}@media(max-width:600px){main:has(#estimate-list) .invoice-card .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}main:has(#estimate-list) .invoice-card .actions .btn{width:100%}}</style></head><body><header><div class="brand">P&D <span style="font-weight:500">Build&Remodel</span><small>ESTIMATES & INVOICES</small></div><span class="tag">2.0 TEST</span></header><nav id="nav"></nav><main id="main"></main><script>
+</style><style id="workflow-ui">main:has(#estimate-list) .invoice-card .actions{align-items:center}main:has(#estimate-list) .invoice-card .actions .btn{min-height:34px}main:has(#lines) .item-row input:focus{background:#fff}.panel:focus-within{border-color:#d3e2ef}@media(max-width:600px){main:has(#estimate-list) .invoice-card .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}main:has(#estimate-list) .invoice-card .actions .btn{width:100%}}</style><style id="pd-operations-polish">.client-extra,.project-extra,.payment-history{margin-top:12px;padding-top:11px;border-top:1px solid #e5ebf1}.client-extra .actions,.project-extra .actions{margin-bottom:0}.mini-heading{font-size:12px;color:#294966}.payment-history .history-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;font-size:12px;padding:7px 0;border-bottom:1px solid #edf1f5}.payment-history .history-row:last-child{border:0}.client-extra a.btn{display:inline-flex;align-items:center;text-decoration:none}.project-extra .muted{margin:4px 0}@media(max-width:600px){.client-extra .actions{flex-wrap:wrap}.client-extra .actions>*{flex:1;text-align:center;justify-content:center}}</style></head><body><header><div class="brand">P&D <span style="font-weight:500">Build&Remodel</span><small>ESTIMATES & INVOICES</small></div><span class="tag">2.0 TEST</span></header><nav id="nav"></nav><main id="main"></main><script>
 const tabs=['Dashboard','Estimates','Invoices','Clients','Projects','Material Planner','Price Templates','Customer Care','Settings'];let tab='Dashboard',editing=null;
 const key='pd2_test_records_v2';let db;try{db=JSON.parse(localStorage.getItem(key))||{clients:[],estimates:[],invoices:[],templates:[],feedback:[]}}catch(e){db={clients:[],estimates:[],invoices:[],templates:[],feedback:[]}}
 const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(+n||0);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const save=()=>localStorage.setItem(key,JSON.stringify(db));const btn=(s,fn,cls='')=>'<button class="btn '+cls+'" onclick="'+fn+'">'+s+'</button>';const title=(s,sub='')=>'<h1>'+s+'</h1><div class="muted">'+sub+'</div>';function go(t){tab=t;editing=null;render()}function render(){document.getElementById('nav').innerHTML=tabs.map(t=>'<button class="'+(t===tab?'active':'')+'" onclick="go(\''+t+'\')">'+t+'</button>').join('');let m=document.getElementById('main');if(tab==='Dashboard'){let unpaid=db.invoices.reduce((a,i)=>a+Math.max(0,(+i.total||0)-(+i.paid||0)),0);let billed=db.invoices.reduce((a,i)=>a+(+i.total||0),0);let paid=db.invoices.reduce((a,i)=>a+(+i.paid||0),0);let quoted=db.estimates.reduce((a,i)=>a+(+i.total||0),0);let pct=billed?Math.min(100,Math.round(paid/billed*100)):0;m.innerHTML='<div class="hero"><div><div class="eyebrow">P&D BUILD&REMODEL · BUSINESS HUB</div><h1>Welcome back 👋</h1><p>Your estimates, invoices, clients and projects—organized in one place.</p></div>'+btn('+ Create Estimate',"go('Estimates')")+'</div><div class="dash-heading">Business overview <small>Live test data · This device</small></div><div class="grid"><div class="stat"><div class="muted">📋 Estimates</div><strong>'+db.estimates.length+'</strong><span class="muted">'+money(quoted)+' quoted</span></div><div class="stat"><div class="muted">🧾 Invoices</div><strong>'+db.invoices.length+'</strong><span class="muted">'+money(billed)+' billed</span></div><div class="stat"><div class="muted">💳 Outstanding</div><strong>'+money(unpaid)+'</strong><span class="muted">Unpaid balance</span></div></div><div class="dash-heading">Quick actions <small>Get things done faster</small></div><div class="quick-grid"><button class="quick" onclick="go(\'Estimates\')"><span class="quick-icon">📄</span><strong>New Estimate</strong><span>Create a detailed quote →</span></button><button class="quick" onclick="go(\'Invoices\')"><span class="quick-icon">🧾</span><strong>Invoices</strong><span>Payments & balances →</span></button><button class="quick" onclick="go(\'Clients\')"><span class="quick-icon">👥</span><strong>Clients</strong><span>Customer directory →</span></button><button class="quick" onclick="go(\'Material Planner\')"><span class="quick-icon">📐</span><strong>Material Planner</strong><span>Job measurements →</span></button></div><div class="dash-heading">Your workspace <small>Recent activity & finances</small></div><div class="dash-split"><div class="panel"><div class="row"><h2>Recent activity</h2><span class="pill">Latest</span></div>'+([...db.estimates.map(x=>({name:x.client,type:'Estimate',total:x.total})),...db.invoices.map(x=>({name:x.client,type:'Invoice',total:x.total}))].slice(-5).reverse().map(x=>'<div class="entry row"><div><strong>'+esc(x.name)+'</strong><div class="muted">'+x.type+'</div></div><strong>'+money(x.total)+'</strong></div>').join('')||'<div class="empty">No activity yet.<br>Create a sample estimate to begin.</div>')+'</div><div class="panel"><div class="section-eyebrow">Financial snapshot</div><h2>Payment progress</h2><div class="row"><span class="muted">Collected</span><strong>'+pct+'%</strong></div><div class="progress"><div style="width:'+pct+'%"></div></div><div class="metric"><span>Total invoiced</span><strong>'+money(billed)+'</strong></div><div class="metric"><span>Payments received</span><strong>'+money(paid)+'</strong></div><div class="metric"><span>Remaining balance</span><strong>'+money(unpaid)+'</strong></div><hr style="border:0;border-top:1px solid #e5edf5;margin:20px 0"><div class="section-eyebrow">Workspace</div><div class="metric"><span>Saved clients</span><strong>'+db.clients.length+'</strong></div><div class="metric"><span>Price templates</span><strong>'+db.templates.length+'</strong></div></div></div><div class="dashboard-foot">P&D 2.0 · Independent development preview · Original app and records remain untouched</div>'}
@@ -161,5 +161,103 @@ const originalGo=go;go=function(t){editingEstimateIndex=null;originalGo(t)};
 const originalRender2=render;render=function(){originalRender2();if(tab==='Estimates'){document.querySelectorAll('#estimate-list .invoice-card').forEach((card,i)=>{const actions=card.querySelector('.actions');if(!actions)return;const b=document.createElement('button');b.className='btn small-action';b.textContent='Edit';b.onclick=()=>editEstimate(i);actions.insertBefore(b,actions.firstChild)})}if(tab==='Settings'){const main=document.getElementById('main');const note=document.createElement('div');note.className='panel';note.innerHTML='<h2>Data protection</h2><p class="muted">This test build saves data in the current browser only. Clearing website data or switching devices can remove records. Export a backup after changes. Do not use for real customer information yet.</p><div class="actions"><button class="btn primary" onclick="exportData()">Download Backup</button><button class="btn" onclick="document.getElementById(\'importfile\').click()">Restore Backup</button></div>';main.appendChild(note)}};
 importData=function(input){const file=input.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);const fields=['clients','estimates','invoices','templates','feedback'];if(!data||typeof data!=='object'||fields.some(k=>!Array.isArray(data[k])))throw Error('Invalid backup structure');if(!confirm('Replace all P&D 2.0 TEST records in this browser with this backup?'))return;db={...data,projects:Array.isArray(data.projects)?data.projects:[]};save();render();alert('Test backup restored successfully')}catch(err){alert('Could not restore: this file is not a valid P&D 2.0 backup.')}};reader.readAsText(file);input.value=''};
 window.addEventListener('error',function(e){console.error('P&D test app error',e.message)});
+
+/* P&D operational workflow additions — browser test mode */
+const pdOriginalRender=render;
+render=function(){
+  pdOriginalRender();
+  if(tab==='Clients'){
+    const email=document.getElementById('cemail');
+    if(email){
+      email.insertAdjacentHTML('afterend','<div class="two"><div><label>Jobsite address</label><input id="caddress" placeholder="Street address, city, ZIP" autocomplete="street-address"></div><div><label>Customer notes</label><input id="cnotes" placeholder="Preferred contact time, access instructions"></div></div>');
+    }
+    document.querySelectorAll('#client-list .invoice-card').forEach((card,i)=>{
+      const x=db.clients[i];if(!x)return;
+      const line=document.createElement('div');line.className='client-extra';
+      line.innerHTML='<div class="muted">'+esc(x.address||'No jobsite address')+'</div>'+(x.notes?'<div class="muted">'+esc(x.notes)+'</div>':'')+'<div class="actions"><button class="btn" onclick="pdEditClient('+i+')">Edit Customer</button>'+(x.phone?'<a class="btn" href="tel:'+encodeURIComponent(x.phone)+'">Call</a>':'')+(x.email?'<a class="btn" href="mailto:'+encodeURIComponent(x.email)+'">Email</a>':'')+'</div>';
+      card.appendChild(line);
+    });
+  }
+  if(tab==='Projects'){
+    const task=document.getElementById('ptasks');
+    if(task){
+      task.insertAdjacentHTML('afterend','<div class="two"><div><label>Start date</label><input id="pstart" type="date"></div><div><label>Target completion</label><input id="pend" type="date"></div></div><label>Jobsite address</label><input id="paddress" placeholder="Job address"><label>Project budget ($)</label><input id="pbudget" type="number" min="0" step=".01" placeholder="Optional budget">');
+    }
+    document.querySelectorAll('.project-card').forEach((card,i)=>{
+      const x=db.projects[i];if(!x)return;
+      const d=document.createElement('div');d.className='project-extra';
+      d.innerHTML='<div class="muted">'+(x.address?'Jobsite: '+esc(x.address)+' · ':'')+(x.start?'Starts: '+esc(x.start)+' · ':'')+(x.end?'Target: '+esc(x.end):'')+'</div>'+(Number.isFinite(+x.budget)&&+x.budget>0?'<div class="muted">Budget: '+money(x.budget)+'</div>':'')+'<div class="actions"><button class="btn" onclick="pdEditProject('+i+')">Edit Project</button></div>';
+      card.appendChild(d);
+    });
+  }
+  if(tab==='Invoices'){
+    document.querySelectorAll('#invoice-list .invoice-card').forEach((card,i)=>{
+      const x=db.invoices[i];if(!x)return;
+      const history=document.createElement('div');history.className='payment-history';
+      const payments=Array.isArray(x.payments)?x.payments:[];
+      history.innerHTML='<div class="row"><strong class="mini-heading">Payment history</strong><span class="muted">'+payments.length+' entries</span></div>'+(payments.map(p=>'<div class="history-row"><span>'+esc(p.date||'Undated')+' · '+esc(p.method||'Other')+'</span><strong>'+money(p.amount)+'</strong>'+(p.reference?' <span class="muted">#'+esc(p.reference)+'</span>':'')+'</div>').join('')||'<p class="muted">No itemized payments recorded yet'+(x.paid?' · Existing paid total: '+money(x.paid):'')+'.</p>');
+      card.appendChild(history);
+    });
+  }
+};
+let pdEditingClient=null,pdEditingProject=null;
+const pdOldAddClient=addClient;
+addClient=function(){
+ const name=document.getElementById('cname')?.value.trim();if(!name)return alert('Enter a customer name');
+ const email=document.getElementById('cemail')?.value.trim()||'';
+ if(email&&!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))return alert('Enter a valid email address');
+ const item={name,phone:document.getElementById('cphone')?.value.trim()||'',email,address:document.getElementById('caddress')?.value.trim()||'',notes:document.getElementById('cnotes')?.value.trim()||''};
+ if(pdEditingClient!==null){db.clients[pdEditingClient]={...db.clients[pdEditingClient],...item};pdEditingClient=null;save();render()}else{db.clients.push(item);save();render()}
+};
+function pdEditClient(i){
+ const x=db.clients[i];if(!x)return;pdEditingClient=i;
+ for(const [id,key] of [['cname','name'],['cphone','phone'],['cemail','email'],['caddress','address'],['cnotes','notes']]){const el=document.getElementById(id);if(el)el.value=x[key]||''}
+ document.querySelector('#cname')?.focus();
+ const b=document.querySelector('#cname')?.closest('.panel')?.querySelector('.actions button');if(b)b.textContent='Save Changes';
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+const pdOldAddProject=addProject;
+addProject=function(){
+ const name=document.getElementById('pname')?.value.trim();if(!name)return alert('Enter a project name');
+ const start=document.getElementById('pstart')?.value||'',end=document.getElementById('pend')?.value||'';
+ if(start&&end&&end<start)return alert('Target completion cannot be before start date');
+ const item={name,client:document.getElementById('pclient')?.value.trim()||'',tasks:document.getElementById('ptasks')?.value.trim()||'',start,end,address:document.getElementById('paddress')?.value.trim()||'',budget:+document.getElementById('pbudget')?.value||0,status:'Planned'};
+ if(item.budget<0)return alert('Budget cannot be negative');
+ if(pdEditingProject!==null){db.projects[pdEditingProject]={...db.projects[pdEditingProject],...item,status:db.projects[pdEditingProject].status};pdEditingProject=null}else db.projects.push(item);
+ save();render();
+};
+function pdEditProject(i){
+ const x=db.projects[i];if(!x)return;pdEditingProject=i;
+ for(const [id,key] of [['pname','name'],['pclient','client'],['ptasks','tasks'],['pstart','start'],['pend','end'],['paddress','address'],['pbudget','budget']]){const el=document.getElementById(id);if(el)el.value=x[key]||''}
+ const b=document.querySelector('#pname')?.closest('.panel')?.querySelector('.actions button');if(b)b.textContent='Save Changes';
+ document.querySelector('#pname')?.focus();window.scrollTo({top:0,behavior:'smooth'});
+}
+const pdOldGo=go;
+go=function(t){pdEditingClient=null;pdEditingProject=null;pdOldGo(t)};
+payment=function(i){
+ const x=db.invoices[i];if(!x)return;
+ const due=Math.max(0,(+x.total||0)-(+x.paid||0));
+ if(due<=0)return alert('This invoice is already paid in full.');
+ const raw=prompt('Payment received ($) · Remaining '+money(due),due.toFixed(2));
+ if(raw===null)return;
+ const amount=Number(raw);
+ if(!Number.isFinite(amount)||amount<=0||amount>due+.001)return alert('Enter a valid payment amount no greater than '+money(due));
+ const method=prompt('Payment method (Cash, Check, Card, Zelle, Bank transfer, Other)','Cash');
+ if(method===null)return;
+ const reference=prompt('Reference or note (optional)','');
+ if(reference===null)return;
+ x.payments=Array.isArray(x.payments)?x.payments:[];
+ x.payments.push({amount:Math.round(amount*100)/100,date:new Date().toISOString().slice(0,10),method:method.trim()||'Other',reference:reference.trim()});
+ x.paid=Math.min(+x.total||0,Math.round(((+x.paid||0)+amount)*100)/100);
+ save();render();
+};
+const pdOldConvert=convert;
+convert=function(i){
+ const e=db.estimates[i];if(!e)return;
+ const already=db.invoices.some(x=>x.sourceEstimate===i);
+ if(already&&!confirm('An invoice already exists for this estimate. Create another?'))return;
+ db.invoices.push({...e,sourceEstimate:i,paid:0,payments:[],invoiceDate:new Date().toISOString().slice(0,10)});
+ save();go('Invoices');
+};
 render();
 </script></body></html>
