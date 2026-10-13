@@ -42,6 +42,7 @@ async function run() {
     assert.equal(await desktop.locator('#pd3MorePanel').isHidden(), true);
     assert.match(await desktop.locator('#main').innerText(), /Data protection|Export Test Data/);
     log('Desktop navigation and contextual menu work');
+    assert.equal(await desktop.locator('#pd3SettingsPreparedBy').inputValue(), 'Papo Delvalle', 'Expected P&D 3.0 default preparer name');
     await desktop.locator('#pd3SettingsPreparedBy').fill('PD3 QA Owner');
     await desktop.locator('#pd3SaveIdentity').click();
     assert.equal((await data(desktop)).businessProfile.preparedBy, 'PD3 QA Owner', 'Sender identity not stored');
