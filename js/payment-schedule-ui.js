@@ -1,4 +1,4 @@
-/* P&D 2.0 payment schedule — professional editor, keeps existing data structure. */
+/* P&D 3.0 payment schedule — professional editor, keeps existing data structure. */
 (function(){
 'use strict';
 const e=s=>esc(s);
@@ -17,7 +17,7 @@ function enhancedRow(r,i){
  const mode=r.amountType==='percent'?'percent':'amount';
  const pct=r.percentage!==undefined?r.percentage:(projectTotal()>0?Math.round(amount/projectTotal()*10000)/100:0);
  const condition=r.dueWhen||((r.dueDate||'')?'date':'milestone');
- const milestone=r.milestone||((i===0)?'Upon estimate acceptance':i===1?'When work begins':'Upon project completion');
+ const milestone=r.milestone||((i===0)?'Upon start of work':'Upon completion of work');
  const interval=r.intervalValue||i;
  const unit=r.intervalUnit||'weeks';
  return '<article class="pd-installment" data-payment="'+i+'">'+
@@ -39,7 +39,7 @@ pdPaymentControls=function(){
  wrap.innerHTML='<div class="pd-pay-head"><div><div class="pd-pay-eyebrow">P&D DOCUMENT BUILDER</div><h2>Payment schedule</h2><div class="pd-pay-sub">Choose a plan. Payments are calculated for you, and you can adjust each one below.</div></div></div>'+
  '<div class="pd-pay-builder"><div class="pd-installment-fields"><div><label>Choose a payment plan</label><select id="pdPlanType"><option value="deposit">Deposit + final balance</option><option value="two">Two equal payments</option><option value="three">Three equal payments</option><option value="ten-thirty">10% deposit + 30% progress + remainder</option><option value="interval">Deposit + scheduled installments</option><option value="custom">Custom payment schedule</option></select></div>'+
  '<div><label>Schedule start date</label><input id="pdScheduleStart" type="date"></div></div>'+
- '<div class="two"><div><label>Deposit calculation</label><select id="pdDepositMode"><option value="percent">Percentage (%)</option><option value="amount">Fixed amount ($)</option></select></div><div><label>Deposit amount / percentage</label><input id="pdDepositValue" type="number" min="0" step=".01" inputmode="decimal" value="10"></div></div>'+
+ '<div class="two"><div><label>Deposit calculation</label><select id="pdDepositMode"><option value="percent">Percentage (%)</option><option value="amount">Fixed amount ($)</option></select></div><div><label>Deposit amount / percentage</label><input id="pdDepositValue" type="number" min="0" step=".01" inputmode="decimal" value="50"></div></div>'+
  '<div class="pd-interval-builder"><div class="two"><div><label>Installments after deposit</label><input id="pdIntervalCount" type="number" min="1" max="24" step="1" value="3"></div><div><label>Every</label><div class="pd-inline-controls"><input id="pdEvery" type="number" min="1" step="1" value="1"><select id="pdUnit"><option value="weeks">Weeks</option><option value="days">Days</option><option value="months">Months</option></select></div></div></div></div>'+
  '<div class="pd-pay-actions"><button class="btn primary" type="button" onclick="pdRecalculatePlan()">Generate payment plan</button></div></div>'+
  '<div class="pd-pay-summary"><div><span>Project total</span><strong id="pdPaymentTotal">$0.00</strong></div><div><span>Scheduled</span><strong id="pdPaymentScheduled">$0.00</strong></div></div>'+
@@ -129,8 +129,16 @@ pdRecalculatePlan=function(){
   rows=[{label:'Deposit',amount:dep/100,dueWhen:'milestone',milestone:'Upon acceptance',depositRequest:true},
     ...parts.map((v,i)=>({label:i===count-1?'Final payment':'Progress payment '+(i+1),amount:v/100,dueWhen:'interval',intervalValue:every*(i+1),intervalUnit:unit}))];
  }else{
-  rows=pdBuildSchedule(total,type,val,mode).map((x,i)=>({...x,
-   dueWhen:'milestone',milestone:i===0?'Upon acceptance':i===1?'Upon start of work':'Upon project completion',depositRequest:type==='deposit'&&i===0}));
+  rows=pdBuildSchedule(total,type,val,mode).map((x,i)=>{
+   const pct=total>0?Math.round(Number(x.amount)/total*10000)/100:(i===0?50:50);
+   const shownPct=String(Number(pct.toFixed(2)))+'%';
+   return {...x,
+    label:type==='deposit'?(i===0?'Deposit ('+shownPct+')':'Remaining balance ('+shownPct+')'):x.label,
+    dueWhen:'milestone',
+    milestone:type==='deposit'?(i===0?'Upon start of work':'Upon completion of work'):
+      i===0?'Upon acceptance':i===1?'Upon start of work':'Upon project completion',
+    depositRequest:type==='deposit'&&i===0};
+  });
  }
  pdPlanCustomized=false;pdLastTotalCents=pdCents(total);pdScheduleRows(rows);
  const deposit=document.getElementById('edeposit');if(deposit){const first=rows.find(r=>r.depositRequest);deposit.value=(first?.amount||0).toFixed(2)}
@@ -161,7 +169,7 @@ const oldPaymentHTML=documentHTML;
 documentHTML=function(type,x,i){
  let html=oldPaymentHTML(type,x,i);
  if(!Array.isArray(x.paymentSchedule)||!x.paymentSchedule.length)return html;
- const terms='<div class="paper-foot"><strong>Payment conditions</strong>'+x.paymentSchedule.map(p=>'<p>'+e(p.label)+': '+(p.milestone?e(p.milestone):p.dueDate?e(p.dueDate):'As agreed')+'</p>').join('')+'</div>';
+ const terms='<div class="paper-foot"><strong>Payment conditions</strong>'+x.paymentSchedule.map(p=>'<p>'+e(p.label||'Payment')+': '+e(p.dueWhen==='date'?(p.dueDate||'As agreed'):p.dueWhen==='interval'?(p.dueDate||p.milestone||'As agreed'):(p.milestone||p.dueDate||'As agreed'))+'</p>').join('')+'</div>';
  return html.replace('<div class="paper-foot"><strong>Thank you',terms+'<div class="paper-foot"><strong>Thank you');
 };
 })();
