@@ -58,7 +58,16 @@ async function run(){
   assert.ok(menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight&&menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth,'More menu not fully inside iPhone viewport');
   assert.equal(await mobile.locator('#pdMoreMenu [data-pd-extra="Projects"]').count(),1);
   await mobile.screenshot({path:'qa-screenshots/after-iphone-more-menu.png',fullPage:false});
-  log('Mobile navigation and overflow checks passed');
+  // Regression: the menu must be genuinely usable, not merely visible to the DOM.
+  await mobile.locator('#pdMoreMenu [data-pd-extra="Projects"]').click();
+  assert.equal(await mobile.locator('#main h1').first().innerText(),'Projects','More > Projects failed to open the project workspace');
+  assert.equal(await mobile.locator('.project-card').count(),1,'Project records disappeared during mobile navigation');
+  assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth <= innerWidth+2),true,'Horizontal overflow after navigating to Projects');
+  await mobile.locator('#pdMoreToggle').click();
+  assert.equal(await mobile.locator('#pdMoreMenu').isVisible(),true,'More menu cannot reopen on Projects');
+  await mobile.locator('#pdMoreToggle').click();
+  assert.equal(await mobile.locator('#pdMoreMenu').isVisible(),false,'More menu does not close on repeat tap');
+  log('Mobile navigation, usable More menu and overflow checks passed');
   await iphone.close();
   const flow=await browser.newPage({viewport:{width:1024,height:850}});
   const flowErrors=[];flow.on('pageerror',e=>flowErrors.push(e.message));
