@@ -52,6 +52,7 @@ async function run(){
   const iphone=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
   const mobile=await iphone.newPage();await seed(mobile);await noJSFailures(mobile,ORIGIN);
   assert.equal(await mobile.locator('#nav').evaluate(el=>getComputedStyle(el).position),'fixed');
+  assert.equal(await mobile.locator('body > header').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(7, 24, 43)','iPhone header must provide navy contrast for white official P&D lettering');
   assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth <= window.innerWidth+2),true,'Horizontal page overflow on iPhone');
   await mobile.screenshot({path:'qa-screenshots/after-iphone.png',fullPage:true});
   await mobile.locator('#pdMoreToggle').click();
@@ -184,6 +185,8 @@ async function run(){
   await liveMobile.locator('#invoice-list .invoice-card .actions').first().getByRole('button',{name:'Preview',exact:true}).click();
   const livePhoneLogo=await liveMobile.locator('.paper .doc-brand img').evaluate(async img=>{await img.decode();return {src:img.currentSrc,width:img.getBoundingClientRect().width,naturalWidth:img.naturalWidth}});
   assert.ok(livePhoneLogo.src.endsWith('/assets/pd-invoice-roof.webp')&&livePhoneLogo.width>=220&&livePhoneLogo.naturalWidth>=400,'LIVE iPhone invoice logo is missing or too small: '+JSON.stringify(livePhoneLogo));
+  assert.equal(await liveMobile.locator('.paper .paper-table th').first().evaluate(el=>getComputedStyle(el).whiteSpace),'nowrap','Mobile document table headings should not break mid-word');
+  assert.equal(await liveMobile.locator('body > header').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(7, 24, 43)','LIVE iPhone official logo contrast is missing');
   await liveMobile.screenshot({path:'qa-screenshots/live-render-iphone-invoice-preview.png',fullPage:true});
   await liveMobile.locator('#pdMoreToggle').click();
   const liveMenu=await liveMobile.locator('#pdMoreMenu').evaluate(e=>{const r=e.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,h:innerHeight,w:innerWidth}});
