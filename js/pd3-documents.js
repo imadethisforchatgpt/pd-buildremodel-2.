@@ -183,10 +183,16 @@
     modal.querySelector('form').addEventListener('submit', function (event) {
       event.preventDefault();
       const rows = [...modal.querySelectorAll('[data-pd3-term]')];
+      if (rows.some(function (row) {
+        return !row.querySelector('.pd3-edit-label').value.trim() ||
+          !row.querySelector('.pd3-edit-due').value.trim();
+      })) {
+        alert('Please enter both a description and due condition for every payment.');
+        return;
+      }
       const nextSchedule = draftRows.map(function (row, i) {
         const label = rows[i].querySelector('.pd3-edit-label').value.trim();
         const condition = rows[i].querySelector('.pd3-edit-due').value.trim();
-        if (!label || !condition) throw Error('Both the payment description and due condition are required.');
         const isDate = /^\d{4}-\d{2}-\d{2}$/.test(condition) &&
           !Number.isNaN(Date.parse(condition + 'T12:00:00'));
         return {...row, label, dueWhen:isDate?'date':'milestone',
