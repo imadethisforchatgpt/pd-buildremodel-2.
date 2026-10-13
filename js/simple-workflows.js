@@ -37,6 +37,7 @@ pdPaymentControls=function(){
   const value=select.value;
   const radio=quick.querySelector('input[value="'+value+'"]');
   if(radio)radio.checked=true;
+  else quick.querySelectorAll('input[name="pdSimplePlan"]').forEach(input=>input.checked=false);
   depositRow.hidden=value!=='deposit';
   const advanced=detail.open||preview.classList.contains('pd-is-editing');
   list.classList.toggle('pd-simple-readonly',!advanced);
@@ -62,8 +63,6 @@ pdPaymentControls=function(){
  });
  detail.addEventListener('toggle',sync);
  select.addEventListener('change',()=>{pdRecalculatePlan();sync()});
- const oldRows=pdScheduleRows;
- pdScheduleRows=function(rows){oldRows(rows);sync()};
  sync();
 };
 const previousEdit=editEstimate;
