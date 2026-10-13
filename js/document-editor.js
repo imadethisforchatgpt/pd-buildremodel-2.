@@ -117,4 +117,32 @@ async function hydrate(root){
 const oldSavedPreview=previewDoc;
 previewDoc=function(type,i){oldSavedPreview(type,i);hydrate(document.getElementById('main'))};
 window.PDEditor={add,hydrate,loadPhoto};
+
+const previousSavedPreview=previewDoc;
+previewDoc=function(type,i){
+ previousSavedPreview(type,i);
+ PDEditor.hydrate(document.getElementById('main'));
+};
+/* A single documentHTML layout powers on-screen preview and print/PDF.
+   The new window opens synchronously on the user's tap, then images load
+   from browser image storage before triggering the print dialog. */
+printStyled=function(type,i){
+ const record=(type==='estimate'?db.estimates:db.invoices)[i];
+ if(!record)return;
+ const popup=window.open('','_blank');
+ if(!popup){alert('Allow popups to print or save this document');return}
+ const css=[...document.querySelectorAll('style')].map(x=>x.textContent).join('\n');
+ const documentBody=documentHTML(type,record,i).replace(/src="\.\/assets\//g,'src="'+location.origin+'/assets/');
+ popup.document.open();
+ popup.document.write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>P&D '+type+'</title><style>'+css+'body{background:white!important}.paper{box-shadow:none!important;border:0!important}@page{size:letter;margin:12mm}@media print{.paper{break-inside:auto}.pd-doc-photo,.pd-doc-heading{break-inside:avoid}}</style></head><body><main>'+documentBody+'</main></body></html>');
+ popup.document.close();
+ (async()=>{
+  try{
+   await PDEditor.hydrate(popup.document);
+   await Promise.all([...popup.document.images].map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve;setTimeout(resolve,5000)})));
+   popup.focus();popup.print();
+  }catch(e){popup.document.body.insertAdjacentHTML('afterbegin','<p>Could not prepare print preview. Please close and try again.</p>')}
+ })();
+};
+
 })();
