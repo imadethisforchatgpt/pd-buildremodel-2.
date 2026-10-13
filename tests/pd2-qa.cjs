@@ -91,11 +91,40 @@ async function run(){
   await flow.locator('#lines .lqty').first().fill('2');
   await flow.locator('#lines .lprice').first().fill('375.50');
   await flow.locator('#pdInvoicePlan').selectOption('three');
+  const testPhotoBase64=await flow.evaluate(()=>{
+    const c=document.createElement('canvas');c.width=700;c.height=440;
+    const ctx=c.getContext('2d');ctx.fillStyle='#e2e9ee';ctx.fillRect(0,0,700,440);
+    ctx.fillStyle='#28455f';ctx.fillRect(75,60,550,315);
+    ctx.fillStyle='#b8ccd9';ctx.fillRect(94,85,512,75);
+    for(let i=0;i<4;i++){ctx.fillStyle='#8faebb';ctx.fillRect(100+i*128,175,118,177);
+      ctx.fillStyle='#ffffff';ctx.fillRect(108+i*128,183,102,161);
+      ctx.fillStyle='#a0b0b9';ctx.fillRect(194+i*128,247,6,28);}
+    ctx.fillStyle='#162b3d';ctx.font='bold 26px sans-serif';ctx.fillText('SAMPLE PROJECT REFERENCE',150,411);
+    return c.toDataURL('image/png').split(',')[1];
+  });
+  await flow.locator('#pdInvoicePhotoUpload').setInputFiles({
+    name:'sample-project-reference.png',mimeType:'image/png',buffer:Buffer.from(testPhotoBase64,'base64')
+  });
+  await flow.locator('#pdInvoicePhotoState').getByText('1 photo saved on this device',{exact:false}).waitFor({timeout:18000});
+  await flow.locator('#pdInvoicePhotoItems .pd-invoice-photo-caption').fill('Example cabinet installation photo - completed doors and gold handles.');
+  await flow.locator('#pdPreviewInvoice').click();
+  const draftCaption=flow.locator('#pdInvoicePreview .pd-doc-photo figcaption');
+  assert.match(await draftCaption.innerText(),/Example cabinet installation photo/);
+  assert.equal(await flow.locator('#pdInvoicePreview .pd-doc-photo img').evaluate(img=>img.complete&&img.naturalWidth>0),true,'Uploaded project photo missing from draft preview');
+  const draftOrder=await flow.locator('#pdInvoicePreview').evaluate(root=>{
+    const items=root.querySelector('.paper-table'),photo=root.querySelector('.pd-doc-photo'),totals=root.querySelector('.paper-totals');
+    return !!(items&&photo&&totals&&(items.compareDocumentPosition(photo)&Node.DOCUMENT_POSITION_FOLLOWING)&&(photo.compareDocumentPosition(totals)&Node.DOCUMENT_POSITION_FOLLOWING));
+  });
+  assert.equal(draftOrder,true,'Invoice photo must render below work items and above totals');
+  await flow.locator('#pdCloseInvoicePreview').click();
   await flow.locator('#pdInvoiceEditor button[type="submit"]').click();
   let data=await storage(flow);
   assert.equal(data.invoices.length,1,'Invoice not stored');
   assert.equal(data.invoices[0].total,751,'Incorrect invoice calculation');
   assert.equal(data.invoices[0].paid,0);
+  assert.equal(data.invoices[0].contentBlocks?.filter(b=>b.type==='photo').length,1,'Photo reference not saved with invoice');
+  assert.equal(data.invoices[0].contentBlocks[0].caption,'Example cabinet installation photo - completed doors and gold handles.');
+  assert.equal(data.invoices[0].contentBlocks[0].captionPosition,'below','Photo description should be below image');
   assert.equal(data.invoices[0].paymentSchedule.length,3,'Payment plan not saved');
   assert.equal(Math.round(data.invoices[0].paymentSchedule.reduce((sum,p)=>sum+p.amount,0)*100),75100,'Schedule does not equal total');
   log('Invoice creation, pricing, and payment requests passed');
@@ -108,11 +137,15 @@ async function run(){
   assert.equal(data.invoices[0].payments.length,1);
   await flow.locator('#invoice-list .invoice-card .actions').first().getByRole('button',{name:'Edit',exact:true}).click();
   await flow.locator('#lines .lprice').first().fill('400.00');
+  assert.equal(await flow.locator('#pdInvoicePhotoItems .pd-invoice-photo-caption').inputValue(),'Example cabinet installation photo - completed doors and gold handles.','Photo caption missing when re-editing invoice');
+  await flow.locator('#pdInvoicePhotoItems .pd-invoice-photo-caption').fill('Updated: cabinet doors installed, aligned and finished.');
   await flow.locator('#pdInvoiceEditor button[type="submit"]').click();
   data=await storage(flow);
   assert.equal(data.invoices[0].total,800,'Invoice price changes did not save');
   assert.equal(data.invoices[0].paid,100,'Invoice edit changed actual payments');
   assert.equal(data.invoices[0].payments.length,1,'Invoice edit discarded payment history');
+  assert.equal(data.invoices[0].contentBlocks?.filter(b=>b.type==='photo').length,1,'Invoice editing removed saved photo');
+  assert.equal(data.invoices[0].contentBlocks[0].caption,'Updated: cabinet doors installed, aligned and finished.','Invoice edit failed to save revised photo description');
   log('Payment ledger, invoice editing and history preservation passed');
   // Branding regression: never substitute the dark master logo on a white invoice.
   await flow.locator('#invoice-list .invoice-card .actions').first().getByRole('button',{name:'Preview',exact:true}).click();
@@ -120,11 +153,22 @@ async function run(){
   assert.ok(invoiceLogo.src.endsWith('/assets/pd-invoice-roof.webp'),'Invoice is not using the official light-background P&D roofline logo: '+invoiceLogo.src);
   assert.ok(invoiceLogo.width>=290 && invoiceLogo.naturalWidth>=400,'Invoice logo is missing or too small: '+JSON.stringify(invoiceLogo));
   await flow.screenshot({path:'qa-screenshots/after-invoice-branded-preview.png',fullPage:true});
+  assert.equal(await flow.locator('.paper .doc-brand .sub').innerText(),'Precision & Design','Invoice heading must say Precision & Design');
+  assert.equal(await flow.locator('.paper .pd-doc-photo figcaption').innerText(),'Updated: cabinet doors installed, aligned and finished.');
+  assert.equal(await flow.locator('.paper .pd-doc-photo img').evaluate(img=>img.complete&&img.naturalWidth>0),true,'Saved invoice photo did not load on preview');
   const invoicePaper=await flow.evaluate(()=>({html:documentHTML('invoice',db.invoices[0],0),css:[...document.querySelectorAll('style')].map(el=>el.textContent).join(' ')}));
   const printPage=await browser.newPage({viewport:{width:900,height:1100}});
   await printPage.setContent('<!doctype html><html><head><meta charset="utf-8"><style>'+invoicePaper.css+'</style></head><body><main>'+invoicePaper.html+'</main></body></html>',{waitUntil:'load'});
   const printableLogo=await printPage.locator('.paper .doc-brand img').evaluate(async image=>{await image.decode();return {width:image.getBoundingClientRect().width,naturalWidth:image.naturalWidth,src:image.currentSrc}});
   assert.ok(printableLogo.src.endsWith('/assets/pd-invoice-roof.webp') && printableLogo.width>=290,'Printable PDF logo is incorrect or too small: '+JSON.stringify(printableLogo));
+  const storedPhotoData=await flow.evaluate(async()=>{
+    const block=db.invoices[0].contentBlocks.find(b=>b.type==='photo');
+    return PDEditor.loadPhoto(block.src);
+  });
+  assert.ok(storedPhotoData?.startsWith('data:image/'),'Cannot read saved photo before printing');
+  await printPage.locator('.pd-doc-photo img[data-pd-photo]').evaluate((img,data)=>{img.src=data},storedPhotoData);
+  await printPage.locator('.pd-doc-photo img').evaluate(async img=>{await img.decode()});
+  assert.match(await printPage.locator('.pd-doc-photo figcaption').innerText(),/Updated: cabinet doors installed/);
   await printPage.pdf({path:'qa-screenshots/pd2-branded-invoice-test.pdf',format:'Letter',printBackground:true});
   const singlePagePDF=fs.readFileSync('qa-screenshots/pd2-branded-invoice-test.pdf','latin1');
   const pdfPageCount=(singlePagePDF.match(/\/Type\s*\/Page\b/g)||[]).length;
@@ -168,7 +212,7 @@ async function run(){
   await printPage.screenshot({path:'qa-screenshots/after-invoice-paper.png',fullPage:true});
   await printPage.close();
   await flow.locator('nav [data-pd-tab="Invoices"]').click();
-  log('Official invoice roofline logo and printed PDF layout passed');
+  log('Official invoice branding, captioned project photo and printed PDF passed');
   await flow.locator('nav [data-pd-tab="Estimates"]').click();
   await flow.getByRole('button',{name:/New Estimate/}).first().click();
   await flow.locator('#eclient').fill('QA Estimate Customer');
