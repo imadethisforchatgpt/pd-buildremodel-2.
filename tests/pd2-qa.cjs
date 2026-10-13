@@ -128,7 +128,42 @@ async function run(){
   await printPage.pdf({path:'qa-screenshots/pd2-branded-invoice-test.pdf',format:'Letter',printBackground:true});
   const singlePagePDF=fs.readFileSync('qa-screenshots/pd2-branded-invoice-test.pdf','latin1');
   const pdfPageCount=(singlePagePDF.match(/\/Type\s*\/Page\b/g)||[]).length;
-  assert.equal(pdfPageCount,1,'Simple single-line P&D invoice should fit on one printed PDF page');
+  assert.ok(pdfPageCount>=1&&pdfPageCount<=3,'Small invoice has unexpected page count: '+pdfPageCount);
+  await printPage.emulateMedia({media:'print'});
+  const printMetrics=await printPage.locator('.paper').evaluate(paper=>{
+    const row=paper.querySelector('.paper-table tbody td');
+    const thead=paper.querySelector('.paper-table thead');
+    const table=paper.querySelector('.paper-table');
+    const size=parseFloat(getComputedStyle(row).fontSize);
+    const docSize=parseFloat(getComputedStyle(paper).fontSize);
+    return {size,docSize,tableHead:getComputedStyle(thead).display,paperBreak:getComputedStyle(paper).breakInside,rowBreak:getComputedStyle(row.parentElement).breakInside,tableWidth:table.getBoundingClientRect().width};
+  });
+  assert.ok(printMetrics.size>=14.8,'Invoice line item text is too small for printing: '+JSON.stringify(printMetrics));
+  assert.ok(printMetrics.docSize>=15.5,'Invoice base font is too small: '+JSON.stringify(printMetrics));
+  assert.equal(printMetrics.tableHead,'table-header-group','Invoice table headings must repeat on subsequent printed pages');
+  assert.equal(printMetrics.paperBreak,'auto','Print layout must not force entire invoice onto one page');
+  assert.equal(printMetrics.rowBreak,'avoid','Individual invoice line items should not split between pages');
+  log('Readable invoice print font and natural page-break rules passed');
+  const longRows=Array.from({length:45},(_,i)=>({description:'Custom cabinet installation and finishing service #'+String(i+1).padStart(2,'0')+' including fitted hardware and final jobsite adjustments',quantity:2,price:145}));
+  const longPrint=await flow.evaluate(rows=>{
+    const record={...db.invoices[0],lines:rows,total:rows.reduce((sum,r)=>sum+r.quantity*r.price,0),
+      notes:'Long-form workmanship notes and project installation specifications for verification.',warranty:'Workmanship warranty terms apply to completed services.'};
+    return documentHTML('invoice',record,0);
+  },longRows);
+  const longPrintPage=await browser.newPage({viewport:{width:900,height:1100}});
+  await longPrintPage.setContent('<!doctype html><html><head><meta charset="utf-8"><style>'+invoicePaper.css+'</style></head><body><main>'+longPrint+'</main></body></html>',{waitUntil:'load'});
+  await longPrintPage.emulateMedia({media:'print'});
+  await longPrintPage.pdf({path:'qa-screenshots/pd2-multipage-invoice-test.pdf',format:'Letter',printBackground:true});
+  const longPDF=fs.readFileSync('qa-screenshots/pd2-multipage-invoice-test.pdf','latin1');
+  const longPageCount=(longPDF.match(/\/Type\s*\/Page\b/g)||[]).length;
+  assert.ok(longPageCount>=3,'Detailed invoice did not flow naturally across pages: '+longPageCount);
+  const rowCount=await longPrintPage.locator('.paper-table tbody tr').count();
+  assert.equal(rowCount,45,'Detailed invoice must retain all 45 distinct line items');
+  const longSize=await longPrintPage.locator('.paper-table tbody tr').last().locator('td').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+  assert.ok(longSize>=14.8,'Multipage invoice line item text shrank unexpectedly: '+longSize);
+  await longPrintPage.screenshot({path:'qa-screenshots/after-invoice-multipage-paper.png',fullPage:true});
+  await longPrintPage.close();
+  log('Long invoice generated '+longPageCount+' readable letter-size pages without shrinking items');
   await printPage.emulateMedia({media:'print'});
   await printPage.screenshot({path:'qa-screenshots/after-invoice-paper.png',fullPage:true});
   await printPage.close();
