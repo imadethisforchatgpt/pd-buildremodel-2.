@@ -153,7 +153,7 @@ async function run(){
   assert.ok(invoiceLogo.src.endsWith('/assets/pd-invoice-roof.webp'),'Invoice is not using the official light-background P&D roofline logo: '+invoiceLogo.src);
   assert.ok(invoiceLogo.width>=290 && invoiceLogo.naturalWidth>=400,'Invoice logo is missing or too small: '+JSON.stringify(invoiceLogo));
   await flow.screenshot({path:'qa-screenshots/after-invoice-branded-preview.png',fullPage:true});
-  assert.equal(await flow.locator('.paper .doc-brand .sub').innerText(),'Precision & Design','Invoice heading must say Precision & Design');
+  assert.equal((await flow.locator('.paper .doc-brand .sub').textContent()).trim(),'Precision & Design','Invoice heading must say Precision & Design');
   assert.equal(await flow.locator('.paper .pd-doc-photo figcaption').innerText(),'Updated: cabinet doors installed, aligned and finished.');
   assert.equal(await flow.locator('.paper .pd-doc-photo img').evaluate(img=>img.complete&&img.naturalWidth>0),true,'Saved invoice photo did not load on preview');
   const invoicePaper=await flow.evaluate(()=>({html:documentHTML('invoice',db.invoices[0],0),css:[...document.querySelectorAll('style')].map(el=>el.textContent).join(' ')}));
