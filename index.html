@@ -111,7 +111,7 @@ label{font-size:11px;letter-spacing:.1px;margin:10px 0 5px;color:#455e74}
 .doc-actions{gap:7px;margin:13px 0}
 @media(max-width:760px){main{padding:16px 12px 65px}.panel{padding:15px}.hero{padding:17px}.hero h1{font-size:22px}.quick-grid{gap:7px}.quick{padding:11px}.grid{gap:7px}.stat{padding:12px;min-height:93px}.stat strong{font-size:19px}.stat .muted{font-size:10px}.brand{font-size:17px}}
 @media(max-width:390px){.hero{display:block}.hero .btn{margin-top:12px}.stat strong{font-size:16px}.stat{padding:10px 8px}.quick-icon{width:32px;height:32px}}
-</style><style id="workflow-ui">main:has(#estimate-list) .invoice-card .actions{align-items:center}main:has(#estimate-list) .invoice-card .actions .btn{min-height:34px}main:has(#lines) .item-row input:focus{background:#fff}.panel:focus-within{border-color:#d3e2ef}@media(max-width:600px){main:has(#estimate-list) .invoice-card .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}main:has(#estimate-list) .invoice-card .actions .btn{width:100%}}</style><style id="pd-operations-polish">.client-extra,.project-extra,.payment-history{margin-top:12px;padding-top:11px;border-top:1px solid #e5ebf1}.client-extra .actions,.project-extra .actions{margin-bottom:0}.mini-heading{font-size:12px;color:#294966}.payment-history .history-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;font-size:12px;padding:7px 0;border-bottom:1px solid #edf1f5}.payment-history .history-row:last-child{border:0}.client-extra a.btn{display:inline-flex;align-items:center;text-decoration:none}.project-extra .muted{margin:4px 0}@media(max-width:600px){.client-extra .actions{flex-wrap:wrap}.client-extra .actions>*{flex:1;text-align:center;justify-content:center}}</style></head><body><header><div class="brand">P&D <span style="font-weight:500">Build&Remodel</span><small>ESTIMATES & INVOICES</small></div><span class="tag">2.0 TEST</span></header><nav id="nav"></nav><main id="main"></main><script>
+</style><style id="workflow-ui">main:has(#estimate-list) .invoice-card .actions{align-items:center}main:has(#estimate-list) .invoice-card .actions .btn{min-height:34px}main:has(#lines) .item-row input:focus{background:#fff}.panel:focus-within{border-color:#d3e2ef}@media(max-width:600px){main:has(#estimate-list) .invoice-card .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}main:has(#estimate-list) .invoice-card .actions .btn{width:100%}}</style><style id="pd-operations-polish">.client-extra,.project-extra,.payment-history{margin-top:12px;padding-top:11px;border-top:1px solid #e5ebf1}.client-extra .actions,.project-extra .actions{margin-bottom:0}.mini-heading{font-size:12px;color:#294966}.payment-history .history-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;font-size:12px;padding:7px 0;border-bottom:1px solid #edf1f5}.payment-history .history-row:last-child{border:0}.client-extra a.btn{display:inline-flex;align-items:center;text-decoration:none}.project-extra .muted{margin:4px 0}@media(max-width:600px){.client-extra .actions{flex-wrap:wrap}.client-extra .actions>*{flex:1;text-align:center;justify-content:center}}</style><style id="pd-stage1-touch">#main button,.actions .btn,#main select{min-height:44px}#main input,#main textarea,#main select{font-size:16px}#main .actions{display:flex;gap:10px;flex-wrap:wrap}#main .actions .btn{padding:11px 17px}@media(max-width:600px){#main .actions .btn{flex:1 1 140px}#main .paper{overflow-x:auto}#main .paper-inner{min-width:0}#main .paper-table{font-size:12px}}</style></head><body><header><div class="brand">P&D <span style="font-weight:500">Build&Remodel</span><small>ESTIMATES & INVOICES</small></div><span class="tag">2.0 TEST</span></header><nav id="nav"></nav><main id="main"></main><script>
 const tabs=['Dashboard','Estimates','Invoices','Clients','Projects','Material Planner','Price Templates','Customer Care','Settings'];let tab='Dashboard',editing=null;
 const key='pd2_test_records_v2';let db;try{db=JSON.parse(localStorage.getItem(key))||{clients:[],estimates:[],invoices:[],templates:[],feedback:[]}}catch(e){db={clients:[],estimates:[],invoices:[],templates:[],feedback:[]}}
 const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(+n||0);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const save=()=>localStorage.setItem(key,JSON.stringify(db));const btn=(s,fn,cls='')=>'<button class="btn '+cls+'" onclick="'+fn+'">'+s+'</button>';const title=(s,sub='')=>'<h1>'+s+'</h1><div class="muted">'+sub+'</div>';function go(t){tab=t;editing=null;render()}function render(){document.getElementById('nav').innerHTML=tabs.map(t=>'<button class="'+(t===tab?'active':'')+'" onclick="go(\''+t+'\')">'+t+'</button>').join('');let m=document.getElementById('main');if(tab==='Dashboard'){let unpaid=db.invoices.reduce((a,i)=>a+Math.max(0,(+i.total||0)-(+i.paid||0)),0);let billed=db.invoices.reduce((a,i)=>a+(+i.total||0),0);let paid=db.invoices.reduce((a,i)=>a+(+i.paid||0),0);let quoted=db.estimates.reduce((a,i)=>a+(+i.total||0),0);let pct=billed?Math.min(100,Math.round(paid/billed*100)):0;m.innerHTML='<div class="hero"><div><div class="eyebrow">P&D BUILD&REMODEL · BUSINESS HUB</div><h1>Welcome back 👋</h1><p>Your estimates, invoices, clients and projects—organized in one place.</p></div>'+btn('+ Create Estimate',"go('Estimates')")+'</div><div class="dash-heading">Business overview <small>Live test data · This device</small></div><div class="grid"><div class="stat"><div class="muted">📋 Estimates</div><strong>'+db.estimates.length+'</strong><span class="muted">'+money(quoted)+' quoted</span></div><div class="stat"><div class="muted">🧾 Invoices</div><strong>'+db.invoices.length+'</strong><span class="muted">'+money(billed)+' billed</span></div><div class="stat"><div class="muted">💳 Outstanding</div><strong>'+money(unpaid)+'</strong><span class="muted">Unpaid balance</span></div></div><div class="dash-heading">Quick actions <small>Get things done faster</small></div><div class="quick-grid"><button class="quick" onclick="go(\'Estimates\')"><span class="quick-icon">📄</span><strong>New Estimate</strong><span>Create a detailed quote →</span></button><button class="quick" onclick="go(\'Invoices\')"><span class="quick-icon">🧾</span><strong>Invoices</strong><span>Payments & balances →</span></button><button class="quick" onclick="go(\'Clients\')"><span class="quick-icon">👥</span><strong>Clients</strong><span>Customer directory →</span></button><button class="quick" onclick="go(\'Material Planner\')"><span class="quick-icon">📐</span><strong>Material Planner</strong><span>Job measurements →</span></button></div><div class="dash-heading">Your workspace <small>Recent activity & finances</small></div><div class="dash-split"><div class="panel"><div class="row"><h2>Recent activity</h2><span class="pill">Latest</span></div>'+([...db.estimates.map(x=>({name:x.client,type:'Estimate',total:x.total})),...db.invoices.map(x=>({name:x.client,type:'Invoice',total:x.total}))].slice(-5).reverse().map(x=>'<div class="entry row"><div><strong>'+esc(x.name)+'</strong><div class="muted">'+x.type+'</div></div><strong>'+money(x.total)+'</strong></div>').join('')||'<div class="empty">No activity yet.<br>Create a sample estimate to begin.</div>')+'</div><div class="panel"><div class="section-eyebrow">Financial snapshot</div><h2>Payment progress</h2><div class="row"><span class="muted">Collected</span><strong>'+pct+'%</strong></div><div class="progress"><div style="width:'+pct+'%"></div></div><div class="metric"><span>Total invoiced</span><strong>'+money(billed)+'</strong></div><div class="metric"><span>Payments received</span><strong>'+money(paid)+'</strong></div><div class="metric"><span>Remaining balance</span><strong>'+money(unpaid)+'</strong></div><hr style="border:0;border-top:1px solid #e5edf5;margin:20px 0"><div class="section-eyebrow">Workspace</div><div class="metric"><span>Saved clients</span><strong>'+db.clients.length+'</strong></div><div class="metric"><span>Price templates</span><strong>'+db.templates.length+'</strong></div></div></div><div class="dashboard-foot">P&D 2.0 · Independent development preview · Original app and records remain untouched</div>'}
@@ -258,6 +258,57 @@ convert=function(i){
  if(already&&!confirm('An invoice already exists for this estimate. Create another?'))return;
  db.invoices.push({...e,sourceEstimate:i,paid:0,payments:[],invoiceDate:new Date().toISOString().slice(0,10)});
  save();go('Invoices');
+};
+
+/* Stage 1: reusable customer selection and mobile touch targets */
+const pdStage1EstimateForm=estimateForm;
+estimateForm=function(){
+ pdStage1EstimateForm();
+ const name=document.getElementById('eclient');
+ if(!name)return;
+ const customers=db.clients||[];
+ const select=document.createElement('select');
+ select.id='pdSavedCustomer';
+ select.setAttribute('aria-label','Select saved customer');
+ select.innerHTML='<option value="">Select a saved customer (optional)</option>'+customers.map((c,i)=>'<option value="'+i+'">'+esc(c.name)+(c.address?' — '+esc(c.address):'')+'</option>').join('');
+ select.addEventListener('change',()=>{
+  if(select.value==='')return;
+  const c=customers[Number(select.value)];if(!c)return;
+  name.value=c.name||'';
+  const addr=document.getElementById('pdJobAddress');if(addr)addr.value=c.address||'';
+  const phone=document.getElementById('pdCustomerPhone');if(phone)phone.value=c.phone||'';
+  const email=document.getElementById('pdCustomerEmail');if(email)email.value=c.email||'';
+ });
+ const label=document.createElement('label');label.textContent='Choose existing customer';
+ name.parentNode.insertBefore(label,name);
+ name.parentNode.insertBefore(select,name);
+ name.insertAdjacentHTML('afterend','<div class="two"><div><label>Customer phone</label><input id="pdCustomerPhone" type="tel" autocomplete="tel" placeholder="Phone"></div><div><label>Customer email</label><input id="pdCustomerEmail" type="email" autocomplete="email" placeholder="Email"></div></div><label>Project address</label><input id="pdJobAddress" autocomplete="street-address" placeholder="Street address, city, ZIP">');
+};
+const pdStage1DraftData=draftData;
+draftData=function(){
+ const x=pdStage1DraftData();
+ x.customerPhone=document.getElementById('pdCustomerPhone')?.value.trim()||'';
+ x.customerEmail=document.getElementById('pdCustomerEmail')?.value.trim()||'';
+ x.projectAddress=document.getElementById('pdJobAddress')?.value.trim()||'';
+ const chosen=document.getElementById('pdSavedCustomer')?.value;
+ if(chosen!==undefined&&chosen!=='')x.customerId=Number(chosen);
+ return x;
+};
+const pdStage1EditEstimate=editEstimate;
+editEstimate=function(i){
+ pdStage1EditEstimate(i);
+ const x=db.estimates[i];if(!x)return;
+ for(const [id,key] of [['pdCustomerPhone','customerPhone'],['pdCustomerEmail','customerEmail'],['pdJobAddress','projectAddress']]){
+  const el=document.getElementById(id);if(el)el.value=x[key]||'';
+ }
+ const sel=document.getElementById('pdSavedCustomer');if(sel&&Number.isInteger(x.customerId))sel.value=String(x.customerId);
+};
+const pdStage1DocumentHTML=documentHTML;
+documentHTML=function(type,x,i){
+ let html=pdStage1DocumentHTML(type,x,i);
+ const details=[x.customerPhone,x.customerEmail,x.projectAddress].filter(Boolean).map(v=>'<p>'+esc(v)+'</p>').join('');
+ if(details)html=html.replace('<strong>'+esc(x.client)+'</strong>','<strong>'+esc(x.client)+'</strong>'+details);
+ return html;
 };
 render();
 </script></body></html>
