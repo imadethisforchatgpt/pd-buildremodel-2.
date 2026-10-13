@@ -41,3 +41,22 @@ input:focus,select:focus,textarea:focus{outline:3px solid #a4c8e859;border-color
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 
 .pd-hidden{display:none!important}.pd-deposit-toggle{display:flex;align-items:center;gap:8px;margin:0!important;font-size:12px!important;color:#496a88;white-space:nowrap}.pd-deposit-toggle input{width:20px;min-height:20px;height:20px;accent-color:#2377b4}.pd-due-extra{margin-top:10px}.pd-due-extra[hidden]{display:none!important}.pd-inline-controls{display:flex;gap:8px}.pd-inline-controls input{width:80px}.pd-inline-controls select{flex:1;min-width:0}.pd-installment-head .pd-installment-value{display:block;margin-top:5px}@media(max-width:600px){.pd-installment-head{align-items:center}.pd-deposit-toggle span{font-size:11px}.pd-installment-head .pd-installment-value{font-size:21px}}
+
+/* Invoice payment recording */
+.pd-payment-overlay{position:fixed;inset:0;background:#081a2dcc;z-index:1000;display:flex;justify-content:center;align-items:flex-start;padding:24px 12px;overflow-y:auto}
+.pd-payment-modal{width:min(100%,670px);background:#fff;border-radius:20px;box-shadow:0 20px 90px #0004;padding:26px;margin:auto 0}
+.pd-payment-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px}
+.pd-payment-modal-head h2{font-size:25px;margin:5px 0}
+.pd-close-payment{border:1px solid #d7e3ee;background:#f5f8fc;border-radius:9px;min-height:44px;padding:8px 13px;font-size:13px;color:#31546f}
+.pd-ledger-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.pd-ledger-stats>div{background:#f1f6fb;border-radius:11px;padding:13px}
+.pd-ledger-stats span{display:block;font-size:11px;color:#5c7287;margin-bottom:7px}
+.pd-ledger-stats strong{font-size:18px;color:#153e63;overflow-wrap:anywhere}
+.pd-payment-impact{background:#edf5fc;border:1px solid #d3e4f3;border-radius:10px;padding:14px;margin-top:17px;font-weight:700;color:#195d8b}
+.pd-payment-credit{background:#fff4e7;border-color:#f1d6b5;color:#8d561b}
+.pd-ledger-history{margin-top:25px;padding-top:18px;border-top:1px solid #e1e9f0}
+.pd-ledger-history h3{font-size:16px;margin:0 0 12px}
+.pd-ledger-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #e8edf3;padding:12px 0}
+.pd-ledger-row strong{color:#173e61;font-size:17px}
+.pd-ledger-tag{font-size:11px;font-weight:700;color:#23754b;background:#e7f5ed;border-radius:100px;padding:6px 9px}
+@media(max-width:600px){.pd-payment-overlay{padding:0;align-items:stretch}.pd-payment-modal{border-radius:0;min-height:100dvh;padding:22px 16px}.pd-ledger-stats{gap:6px}.pd-ledger-stats>div{padding:10px 8px}.pd-ledger-stats strong{font-size:15px}.pd-payment-modal-head h2{font-size:22px}}
