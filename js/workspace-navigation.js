@@ -22,4 +22,5 @@ render=function(){
  const subtitle=document.querySelector('#main .hero p');
  if(subtitle&&tab==='Dashboard')subtitle.textContent='Your work, payments and clients — all in one place.';
 };
+render();
 })();
