@@ -131,7 +131,7 @@ estimateForm=function(){
 (function(){
 'use strict';
 const DRAFT_NEW='pd2_invoice_draft_v1';
-const BRAND_LOGO='https://raw.githubusercontent.com/imadethisforchatgpt/pd-build-remodel-website/main/assets/pd-logo.png';
+const BRAND_LOGO=location.origin+'/assets/pd-logo.png';
 let editingInvoice=null,draftTimeout=null;
 const validArray=v=>Array.isArray(v)?v:[];
 const day=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
