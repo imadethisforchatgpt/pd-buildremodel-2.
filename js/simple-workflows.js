@@ -320,7 +320,8 @@ saveEstimate=function(){
 const beforeDocHTML=documentHTML;
 documentHTML=function(type,x,i){
  let content=beforeDocHTML(type,x,i);
- content=content.replace(/src="\.\/assets\/pd-roof-reference\.svg"/g,'src="'+BRAND_LOGO+'" alt="Official P&D invoice roofline artwork" data-pd-official-invoice-logo="true"');
+ content=content.replace(/src="\.\/assets\/pd-roof-reference\.svg"/g,'src="'+BRAND_LOGO+'" data-pd-official-invoice-logo="true"');
+ content=content.replace('alt="Original P&D logo"','alt="Official P&D invoice roofline and lettering"');
  const fields=[];
  if(x.projectName)fields.push('<span><b>Project</b> '+esc(x.projectName)+'</span>');
  if(x.projectAddress)fields.push('<span><b>Jobsite</b> '+esc(x.projectAddress)+'</span>');
