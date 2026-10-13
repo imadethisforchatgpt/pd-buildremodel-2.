@@ -51,6 +51,66 @@ main:has(#lines) .four label{font-size:9px}
 main:has(#lines) .four .btn{font-size:12px}
 main:has(#lines) .form-intro{padding:12px}
 }
+</style><style id="official-polish">
+:root{--ink:#19314a;--muted:#728398;--line:#e4eaf1;--blue:#155c94;--navy:#0c2d4b}
+html{-webkit-text-size-adjust:100%}body{background:#f5f7fa;color:var(--ink);font-size:14px;line-height:1.45}
+header{background:#0b2c4b;padding-top:16px;padding-bottom:16px;box-shadow:none;border-bottom:1px solid #214561}
+.brand{font-size:19px;letter-spacing:-.4px}.brand small{font-size:9px;letter-spacing:1.5px;margin-top:2px}
+.tag{background:#173f62;border:1px solid #325776;padding:5px 9px;font-size:9px}
+nav{background:#102f4d;box-shadow:none;gap:4px;scrollbar-width:none}nav::-webkit-scrollbar{display:none}
+nav button{padding:12px 13px;font-size:12px;font-weight:650;border-radius:0;letter-spacing:.1px}
+nav button.active{background:#ffffff0b;border-bottom:2px solid #60b5e7}
+main{max-width:1080px;padding-top:23px}
+h1{font-size:24px;letter-spacing:-.7px;font-weight:800;color:#183753}
+h2{font-size:16px;letter-spacing:-.2px;font-weight:750;color:#1a3b59}
+.muted{font-size:12px;color:#71849a}
+.panel,.stat{border:1px solid #e2e8ef;border-radius:12px;box-shadow:0 3px 13px #163b5c08}
+.panel{padding:19px;margin:14px 0}
+.stat{min-height:100px;padding:15px 16px}.stat:before{width:75px;height:75px;right:-25px;top:-25px;background:#e5f2fc80}
+.stat strong{font-size:23px;margin-top:7px}.stat .muted{font-size:11px}
+.btn{border-radius:7px;padding:9px 12px;font-size:12px;font-weight:700;box-shadow:none}
+.btn:hover{box-shadow:0 3px 9px #0d355818;transform:none}
+.btn.primary,.primary{background:#165f9a;border-color:#165f9a}
+input,textarea,select{font-size:13px;padding:9px 11px;border-radius:7px;border-color:#d9e3ec;background:white}
+input:focus,textarea:focus,select:focus{border-color:#4b91c8;box-shadow:0 0 0 2px #c8e2f755}
+label{font-size:11px;letter-spacing:.1px;margin:10px 0 5px;color:#455e74}
+.actions{gap:7px;margin:13px 0}.row{gap:9px}
+.invoice-card,.project-card{box-shadow:none;border-color:#e3eaf1;border-radius:9px}
+.invoice-card{padding:14px;margin:9px 0;background:#fff}
+.invoice-card h2{font-size:15px}
+.invoice-card .actions{margin:10px 0 0}
+.estimate-summary{margin:13px 0;gap:8px}
+.estimate-summary>div{border-radius:9px;padding:12px;background:#fff;border:1px solid #e4eaf1}
+.estimate-summary strong{font-size:19px}
+.section-head{margin-bottom:11px}.section-head h2{margin:0}
+.pill{background:#edf4fa;color:#28628b;border-radius:5px;padding:4px 7px;font-size:10px;font-weight:750}
+.badge-status{border-radius:5px}
+.toolbar{margin:12px 0}
+.empty{padding:23px 15px;font-size:12px;border-radius:9px}
+.hero{background:#103b60;box-shadow:none;border:1px solid #245a83;border-radius:13px;padding:23px 25px}
+.hero:after{width:175px;height:175px;right:-50px;top:-75px}
+.hero h1{font-size:25px;letter-spacing:-.5px}.hero p{font-size:12px}
+.hero .eyebrow{font-size:10px;letter-spacing:1.3px}
+.hero .btn{border-radius:7px}
+.dash-heading{font-size:14px;margin:20px 0 10px}
+.quick-grid{gap:9px}
+.quick{border-radius:10px;padding:14px;box-shadow:0 2px 10px #123b5a08;transition:border .15s}
+.quick:hover{transform:none}
+.quick-icon{width:36px;height:36px;font-size:17px;border-radius:8px;margin-bottom:10px}
+.quick strong{font-size:12px}.quick span:last-child{font-size:10px}
+.dash-split{gap:12px}
+.progress{height:7px}
+.payment-box{padding:13px;background:#f7fafc;border-color:#e2eaf1}
+.tool-tabs{margin:12px 0;gap:6px}.tool-tabs button{padding:8px 11px;font-size:11px;border-radius:7px}
+.form-intro{background:#123e64;border-radius:10px;padding:15px 18px}
+.form-intro h2{font-size:15px}.form-intro p{font-size:11px}
+.item-row{background:#fafbfd;border-color:#e3eaf1}
+.paper{border-radius:8px;box-shadow:0 5px 20px #17365310}
+.paper-inner{padding:28px}.paper-totals{background:#f5f8fb}
+.paper-table thead{background:#123c60}
+.doc-actions{gap:7px;margin:13px 0}
+@media(max-width:760px){main{padding:16px 12px 65px}.panel{padding:15px}.hero{padding:17px}.hero h1{font-size:22px}.quick-grid{gap:7px}.quick{padding:11px}.grid{gap:7px}.stat{padding:12px;min-height:93px}.stat strong{font-size:19px}.stat .muted{font-size:10px}.brand{font-size:17px}}
+@media(max-width:390px){.hero{display:block}.hero .btn{margin-top:12px}.stat strong{font-size:16px}.stat{padding:10px 8px}.quick-icon{width:32px;height:32px}}
 </style></head><body><header><div class="brand">P&D <span style="font-weight:500">Build&Remodel</span><small>ESTIMATES & INVOICES</small></div><span class="tag">2.0 TEST</span></header><nav id="nav"></nav><main id="main"></main><script>
 const tabs=['Dashboard','Estimates','Invoices','Clients','Projects','Material Planner','Price Templates','Customer Care','Settings'];let tab='Dashboard',editing=null;
 const key='pd2_test_records_v2';let db;try{db=JSON.parse(localStorage.getItem(key))||{clients:[],estimates:[],invoices:[],templates:[],feedback:[]}}catch(e){db={clients:[],estimates:[],invoices:[],templates:[],feedback:[]}}
@@ -68,7 +128,7 @@ function getLines(){return [...document.querySelectorAll('#lines .four')].map(d=
 const PD_LOGO="./assets/pd-roof-reference.svg";
 function documentHTML(type,x,i){const invoice=type==='invoice';const paid=+x.paid||0;const lines=x.lines||[];let subtotal=lines.reduce((a,l)=>a+(+l.quantity||0)*(+l.price||0),0);const total=Number(x.total)||subtotal;const balance=Math.max(0,total-paid);const number=(invoice?'INV-':'EST-')+String(i+1).padStart(4,'0');return '<div class="paper"><div class="paper-top"></div><div class="paper-inner"><div class="paper-head"><div class="doc-brand"><img src="'+PD_LOGO+'" alt="Original P&D logo"><div><div class="firm">P&D Build&Remodel</div><div class="sub">Precision & Detail</div></div></div><div class="paper-title"><h2>'+(invoice?'INVOICE':'ESTIMATE')+'</h2><small>'+number+'</small></div></div><div class="paper-meta"><div><div class="caption-label">Prepared for</div><strong>'+esc(x.client)+'</strong><p>'+esc(x.description||'Project services')+'</p></div><div><div class="caption-label">From</div><strong>P&D Build&Remodel</strong><p>(254) 535-7623</p><p>info@pdbuildremodel.com</p><p>pd-buildremodel.com</p></div></div><table class="paper-table"><thead><tr><th>DESCRIPTION</th><th>QTY</th><th>RATE</th><th>AMOUNT</th></tr></thead><tbody>'+lines.map(l=>'<tr><td>'+esc(l.description||'Service')+'</td><td>'+esc(l.quantity)+'</td><td>'+money(l.price)+'</td><td>'+money((+l.quantity||0)*(+l.price||0))+'</td></tr>').join('')+'</tbody></table><div class="paper-totals"><div class="line"><span>Subtotal</span><strong>'+money(subtotal)+'</strong></div>'+(invoice?'<div class="line"><span>Payments received</span><strong>− '+money(paid)+'</strong></div>':'')+'<div class="line grand"><span>'+(invoice?'Balance due':'Estimate total')+'</span><strong>'+money(invoice?balance:total)+'</strong></div></div>'+(x.notes?'<div class="paper-foot"><strong>Project notes</strong>'+esc(x.notes)+'</div>':'')+(x.warranty?'<div class="paper-foot"><strong>Warranty</strong>'+esc(x.warranty)+'</div>':'')+'<div class="paper-foot"><strong>Thank you for choosing P&D Build&Remodel.</strong>Quality craftsmanship. Precision in every detail.</div></div></div>'}
 function previewDoc(type,i){const x=(type==='estimate'?db.estimates:db.invoices)[i];if(!x)return;document.getElementById('main').innerHTML='<div class="row"><div>'+title(type==='estimate'?'Estimate Preview':'Invoice Preview','Review the document before printing or sharing')+'</div></div><div class="doc-actions">'+btn('← Back',type==='estimate'?"go('Estimates')":"go('Invoices')")+btn('Print / Save PDF',type==='estimate'?'printEstimate('+i+')':'printDoc('+i+')','primary')+'</div>'+documentHTML(type,x,i)}
-function printStyled(type,i){const x=(type==='estimate'?db.estimates:db.invoices)[i];if(!x)return;const w=window.open('','_blank');if(!w){alert('Allow popups to print this document');return}const styles=document.querySelectorAll('style');const printCSS=[...styles].map(el=>el.textContent).join('\n');w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>P&D '+type+' '+(i+1)+'</title><style>'+printCSS+'body{background:white!important}main{max-width:900px!important;padding:0!important}.paper{box-shadow:none!important;border:0!important}@page{size:letter;margin:12mm} @media print{.paper{break-inside:avoid}.paper-inner{padding:15px}.paper-top{-webkit-print-color-adjust:exact;print-color-adjust:exact}.paper-table thead{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><main>'+documentHTML(type,x,i)+'</main></body></html>');w.document.close();const img=w.document.querySelector('img');const finish=()=>{w.focus();w.print()};if(img&&!img.complete){img.onload=finish;img.onerror=finish;setTimeout(finish,2200)}else setTimeout(finish,300)}
+function printStyled(type,i){const x=(type==='estimate'?db.estimates:db.invoices)[i];if(!x)return;const w=window.open('','_blank');if(!w){alert('Allow popups to print this document');return}const styles=document.querySelectorAll('style');const printCSS=[...styles].map(el=>el.textContent).join('\n');w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>P&D '+type+' '+(i+1)+'</title><style>'+printCSS+'body{background:white!important}main{max-width:900px!important;padding:0!important}.paper{box-shadow:none!important;border:0!important}@page{size:letter;margin:12mm} @media print{.paper{break-inside:avoid}.paper-inner{padding:15px}.paper-top{-webkit-print-color-adjust:exact;print-color-adjust:exact}.paper-table thead{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><main>'+documentHTML(type,x,i)+'</main><script>document.addEventListener('click',function(e){const b=e.target.closest('#nav button');if(b){setTimeout(()=>{try{b.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'})}catch(_){}},50)}});</script></body></html>');w.document.close();const img=w.document.querySelector('img');const finish=()=>{w.focus();w.print()};if(img&&!img.complete){img.onload=finish;img.onerror=finish;setTimeout(finish,2200)}else setTimeout(finish,300)}
 function printDoc(i){printStyled('invoice',i)}function printEstimate(i){printStyled('estimate',i)}
 function estimateForm(){document.getElementById('main').innerHTML=title('Create Estimate','Professional quotes made simple')+'<div class="form-intro"><h2>✦ New project proposal</h2><p>Enter your customer details, add work items, and preview the finished document before saving.</p></div><div class="panel"><div class="section-head"><h2>01 · Customer & project</h2><span class="pill">Step 1</span></div><label>Customer name</label><input id="eclient" placeholder="Who is this estimate for?"><label>Project description</label><textarea id="edesc" placeholder="Example: Custom kitchen cabinet fabrication and installation"></textarea><div class="form-section"><div class="section-head"><h2>02 · Scope of work</h2><span class="pill">Step 2</span></div><div id="lines"></div><div class="actions">'+btn('+ Add Line Item','addLine()')+'</div></div><div class="form-section"><h2>03 · Notes & warranty</h2><label>Project notes (optional)</label><textarea id="enotes" placeholder="Scope details, exclusions, estimated timeline..."></textarea><label>Warranty (optional)</label><textarea id="ewarranty" placeholder="Example: One-year workmanship warranty, excluding misuse or customer-caused damage."></textarea></div><div class="form-section"><div class="section-head"><h2>04 · Review totals</h2><span class="pill">Step 3</span></div><div id="etotal" class="total">$0.00</div><p class="form-field-note">Totals update automatically as you enter quantities and prices.</p><div class="actions">'+btn('👁 Preview Estimate','previewDraft()')+btn('Save Estimate','saveEstimate()','primary')+btn('Cancel',"go('Estimates')")+'</div></div></div>';addLine()}
 function addLine(){const d=document.createElement('div');d.className='item-row';d.innerHTML='<div class="four"><div><label>Work description</label><input class="ldesc" placeholder="Cabinet fabrication"></div><div><label>Qty</label><input class="lqty" type="number" min="0" value="1" oninput="updateTotal()"></div><div><label>Rate ($)</label><input class="lprice" type="number" min="0" value="0" oninput="updateTotal()"></div><button class="btn" onclick="this.closest(\'.item-row\').remove();updateTotal()" aria-label="Remove item">×</button></div>';document.getElementById('lines').appendChild(d);updateTotal()}
