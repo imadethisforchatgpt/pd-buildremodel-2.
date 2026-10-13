@@ -42,7 +42,7 @@
      (record.customerPhone?'<p>'+E(record.customerPhone)+'</p>':'') +
      (record.customerEmail?'<p>'+E(record.customerEmail)+'</p>':'')+'</div>' +
      '<div><div class="caption-label">FROM</div><strong>P&D Build&Remodel</strong>' +
-     '<p class="pd3-preparer">'+E(owner)+'</p><p>(254) 535-7623</p>' +
+     '<p class="pd3-preparer">Prepared by: '+E(owner)+'</p><p>(254) 535-7623</p>' +
      '<p>info@pdbuildremodel.com</p></div>' +
      '<div class="pd3-date-meta"><div class="caption-label">DATE</div><p>'+E(issued)+'</p>' +
      (valid?'<div class="caption-label pd3-valid-label">VALID UNTIL</div><p>'+E(valid)+'</p>':'')+'</div></div>';
