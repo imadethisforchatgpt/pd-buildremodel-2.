@@ -1,0 +1,60 @@
+name: P&D 2.0 Preview Quality Check
+on:
+  push:
+    branches:
+      - feature/document-workflows-stage-1
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JavaScript source
+        shell: bash
+        run: |
+          set -e
+          for file in js/*.js; do node --check "$file"; done
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          contents=Path('index.html').read_text()
+          embedded=re.findall(r'<script(?:\s+[^>]*)?>(.*?)</script>', contents, re.S)
+          assert embedded, 'No inline application JavaScript found'
+          for n, text in enumerate(embedded):
+              Path(f'/tmp/pd2-inline-{n}.js').write_text(text)
+          PY
+          for file in /tmp/pd2-inline-*.js; do node --check "$file"; done
+      - name: Install browser test tools
+        shell: bash
+        run: |
+          npm init -y >/dev/null
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start before-and-after sites
+        shell: bash
+        run: |
+          set -e
+          git worktree add --detach /tmp/pd2-before origin/backup/pd2-before-experiment-2026-10-12
+          nohup python3 -m http.server 8765 --bind 127.0.0.1 --directory /tmp/pd2-before >/tmp/pd2-before-server.log 2>&1 &
+          nohup python3 -m http.server 8766 --bind 127.0.0.1 --directory "$PWD" >/tmp/pd2-after-server.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8765/ >/dev/null && curl -fsS http://127.0.0.1:8766/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Run desktop, mobile and workflow QA
+        run: node tests/pd2-qa.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pd2-before-after-screenshots
+          path: qa-screenshots/
+          if-no-files-found: ignore
