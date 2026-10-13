@@ -55,6 +55,7 @@ jobs:
           npm init -y >/dev/null
           npm install --no-save playwright@1.56.1
           npx playwright install --with-deps chromium
+          sudo apt-get install -y poppler-utils
       - name: Start isolated P&D 3.0 site
         shell: bash
         run: |
@@ -64,9 +65,9 @@ jobs:
             sleep 1
           done
           exit 1
-      - name: Run desktop, mobile, estimates and payment checks
+      - name: Run desktop, mobile, invoice PDF and workflow checks
         run: node tests/pd3-qa.cjs
-      - name: Upload P&D 3.0 design screenshots
+      - name: Upload P&D 3.0 PDF and design samples
         uses: actions/upload-artifact@v4
         if: always()
         with:
