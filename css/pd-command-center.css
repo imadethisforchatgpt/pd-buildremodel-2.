@@ -150,11 +150,11 @@ body.pd-command-body .pd-payment-modal{border-radius:20px}
 @media(max-width:860px){
  html{scroll-padding-top:85px}
  body.pd-command-body{padding:0!important;background:#f4f7fa!important}
- body.pd-command-body>header{position:sticky!important;top:0;left:0;width:100%;height:73px;z-index:60;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px!important;background:#fff!important;border-bottom:1px solid #e0e8ef!important;box-shadow:0 4px 20px #0b2b4810!important}
- body.pd-command-body>header .brand{color:#0d2b43!important}
+ body.pd-command-body>header{position:sticky!important;top:0;left:0;width:100%;height:73px;z-index:60;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px!important;background:#07182b!important;border-bottom:1px solid #214864!important;box-shadow:0 4px 20px #0b2b481c!important}
+ body.pd-command-body>header .brand{color:#fff!important}
  body.pd-command-body>header .pd-real-mark{width:55px;height:53px;padding:0;background:transparent}
- body.pd-command-body>header .pd-brand-copy strong{color:#123650;font-size:16px}
- body.pd-command-body>header .pd-brand-copy small{color:#718da1!important;letter-spacing:1px!important;font-size:9px!important}
+ body.pd-command-body>header .pd-brand-copy strong{color:#fff;font-size:16px}
+ body.pd-command-body>header .pd-brand-copy small{color:#afd2e6!important;letter-spacing:1px!important;font-size:9px!important}
  body.pd-command-body>header .tag{background:#e9f4fb!important;color:#196c9d!important;border-color:#c8e3f1!important;font-size:9px!important}
  body.pd-command-body>nav#nav{top:auto;bottom:0;left:0;width:100%;height:calc(72px + env(safe-area-inset-bottom,0px));padding:0 5px env(safe-area-inset-bottom,0px)!important;border-top:1px solid #d9e3eb!important;background:#fff!important;box-shadow:0 -7px 25px #0b2b4813!important;z-index:65}
  body.pd-command-body>nav#nav .pd-nav-inner{flex-direction:row;height:72px;align-items:stretch;justify-content:space-around;gap:0;max-width:none}
@@ -290,4 +290,15 @@ body.pd-command-body>main#main #pdFullBackup{margin-top:12px}
  body.pd-command-body>nav#nav .pd-nav-menu button,body.pd-command-body>nav#nav .pd-nav-menu button.active{color:#26465f!important;background:transparent!important;white-space:normal!important;font-size:14px!important;text-align:left!important}
  body.pd-command-body>nav#nav .pd-nav-menu button:hover,body.pd-command-body>nav#nav .pd-nav-menu button.active{background:#e9f4fb!important;color:#145f90!important}
  body.pd-command-body>nav#nav .pd-nav-inner>.pd-nav-link{flex:1 1 0!important;min-width:0!important}
+}
+
+/* Keep the official white-lettered master emblem legible without changing any pixels.
+   On iPhone, pair it with a dark navy background; optimize document column widths. */
+@media(max-width:860px){
+ body.pd-command-body>header .pd-real-mark{background:#07182b!important;object-fit:contain!important;filter:none!important;opacity:1!important}
+ body.pd-command-body>main#main .paper .paper-table th:nth-child(1),body.pd-command-body>main#main .paper .paper-table td:nth-child(1){width:42%!important}
+ body.pd-command-body>main#main .paper .paper-table th:nth-child(2),body.pd-command-body>main#main .paper .paper-table td:nth-child(2){width:11%!important}
+ body.pd-command-body>main#main .paper .paper-table th:nth-child(3),body.pd-command-body>main#main .paper .paper-table td:nth-child(3){width:20%!important}
+ body.pd-command-body>main#main .paper .paper-table th:nth-child(4),body.pd-command-body>main#main .paper .paper-table td:nth-child(4){width:27%!important}
+ body.pd-command-body>main#main .paper .paper-table th{font-size:9px!important;letter-spacing:0!important;white-space:nowrap!important}
 }
