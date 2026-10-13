@@ -117,7 +117,13 @@ async function hydrate(root){
 }
 const oldSavedPreview=previewDoc;
 previewDoc=function(type,i){oldSavedPreview(type,i);hydrate(document.getElementById('main'))};
-window.PDEditor={add,hydrate,loadPhoto};
+
+async function addPhoto(file,width,caption){
+ const b=PDBlocks.make('photo');b.width=width==='half'?'half':'full';b.caption=caption||'';
+ const data=await compress(file);const photoId=PDBlocks.make('photo').id;
+ await storePhoto(photoId,data);b.src=photoId;blocks.push(b);draw();changed();
+}
+window.PDEditor={add,addPhoto,hydrate,loadPhoto};
 
 /* Draft recovery stores text, calculations, and photo references.
    Actual photos remain in the same browser's IndexedDB in test mode. */
