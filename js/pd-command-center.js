@@ -27,7 +27,7 @@ function updateBrand(){
  if(!header)return;
  const brand=header.querySelector('.brand');
  if(brand&&!brand.querySelector('.pd-real-mark')){
-  brand.innerHTML='<img class="pd-real-mark" src="'+LOGO+'" alt="Official P&D Build&Remodel full emblem"><span class="pd-brand-copy"><strong>P&D Build&Remodel</strong><small>PRECISION & DETAIL</small></span>';
+  brand.innerHTML='<img class="pd-real-mark" src="'+LOGO+'" alt="Official P&D Build&Remodel full emblem"><span class="pd-brand-copy"><strong>P&D<br>Build&Remodel</strong><small>PRECISION & DETAIL</small></span>';
  }
  const tag=header.querySelector('.tag');if(tag)tag.textContent='P&D 2.0 · PRIVATE';
  document.title='P&D Command Center | Build&Remodel';
