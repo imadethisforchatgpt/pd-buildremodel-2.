@@ -10,7 +10,7 @@
   return new Intl.DateTimeFormat('en-US', {year:'numeric',month:'short',day:'numeric',timeZone:'UTC'}).format(date);
  }
  function documentMarkup(type, record, index) {
-  let markup = documentHTML(type, record, index);
+  let markup = window.PD3PrintLayout ? window.PD3PrintLayout.render(type, record, index) : documentHTML(type, record, index);
   markup = markup.replace(/src="\.\/assets\//g, 'src="' + BASE + '/assets/');
   const date = formatDate(type === 'invoice' ? (record.invoiceDate || record.date) : record.date);
   if (date) {
