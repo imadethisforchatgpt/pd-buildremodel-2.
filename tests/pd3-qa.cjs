@@ -20,7 +20,7 @@ async function data(page) {
   return page.evaluate(key => JSON.parse(localStorage.getItem(key)), KEY);
 }
 async function run() {
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ headless: true, executablePath: process.env.PD3_CHROMIUM_EXECUTABLE || undefined });
   try {
     const desktop = await browser.newPage({ viewport: { width: 1440, height: 960 } });
     const protected2 = '{"this":"is data belonging to another preview"}';

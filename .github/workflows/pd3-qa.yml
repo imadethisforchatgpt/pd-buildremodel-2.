@@ -50,12 +50,22 @@ jobs:
           for i,code in enumerate(scripts): Path(f'/tmp/pd3-inline-{i}.js').write_text(code)
           PY
           for file in /tmp/pd3-inline-*.js; do node --check "$file"; done
+      - name: Set up Java for isolated Firestore emulator
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
       - name: Install browser test tools
         run: |
           npm init -y >/dev/null
-          npm install --no-save playwright@1.56.1
+          npm install --no-save playwright@1.56.1 firebase@12.4.0 @firebase/rules-unit-testing@5.0.0 firebase-tools@15.33.0
           npx playwright install --with-deps chromium
           sudo apt-get install -y poppler-utils
+      - name: Test P&D 3.0 cloud protocol and rules
+        run: |
+          node tests/pd3-cloud-core.cjs
+          node tests/pd3-cloud-qa.cjs
+          npx firebase-tools emulators:exec --config firebase.pd3-emulators.json --only firestore --project demo-pd3-rules "node tests/pd3-firestore-rules.cjs"
       - name: Start isolated P&D 3.0 site
         shell: bash
         run: |

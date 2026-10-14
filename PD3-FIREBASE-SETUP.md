@@ -1,65 +1,51 @@
-# P&D 3.0 — Firebase setup and verified handoff
+# P&D 3.0 cloud integration — activation pending
 
-## Scope
-Use only `imadethisforchatgpt/pd-buildremodel-2.`, branch `feature/pd3-premium-experience`.
-Deploy only Render service `srv-db6r9mmk1f9s73b8m5p0` in workspace `tea-db4o00jtqb8s73bgbogg`, with manual deployment.
-Do not change main, P&D 2.0, the original Sites application, or the public business website.
+## Isolation and project
+Only branch `feature/pd3-premium-experience` in `imadethisforchatgpt/pd-buildremodel-2.`.
+Only Render service `srv-db6r9mmk1f9s73b8m5p0`, manual deploy, workspace `tea-db4o00jtqb8s73bgbogg`.
+Never modify P&D 2.0, main, the original Sites application, or the public website.
+Use existing Firebase project `pdbuildremodel-e2a2e`; remain on Spark. Do not delete the mistakenly created Realtime Database or provision paid services.
 
-## Existing Firebase project
-Use **pdbuildremodel-e2a2e** (PDBuildRemodel), project number 615625192701.
-The P&D 3.0 web app is already registered as `1:615625192701:web:7b7ae6108dd0a8eba43a94`.
-Public web configuration is committed in `js/pd3-firebase-config.js`.
-Do not create a replacement project or register another web app.
+## Current release
+The local app includes full device backup/restore and truthful save status.
+Firebase adapter code is implemented but **disabled** by `PD3_FIREBASE_CLOUD_ENABLED = false`.
+No Firebase SDK loads and no customer records upload in this release.
+The owner reported creating Standard Firestore in production mode on October 13; actual database creation, selected region, published rules, Auth configuration, authorized domains, and API-key restrictions still need verification.
+Google administrator sign-in remains blocked by account verification/password issues. Do not solicit passwords or codes in chat.
 
-The owner reported Email/Password authentication enabled and a locked Realtime Database created by mistake.
-These console settings have not been independently verified in this Work session.
-Realtime Database is not Firestore; leave it untouched. Inspect its contents and obtain approval before any deletion.
-Remain on Spark. Do not enable paid services, provision PostgreSQL, or upload photos.
+## Cloud protocol
+Version 1 stores the complete records JSON in `users/{uid}/settings/workspace-v1`.
+An atomic workspace preserves all existing collections and custom fields, invoice payments/credits, settings, and array-based document links.
+There is no destructive per-record migration and no implicit array reordering.
+Firestore transactions compare monotonically increasing revisions. Stale offline/concurrent writes fail into explicit conflict recovery; mutation IDs prevent duplicate commits after uncertain acknowledgements.
+This initial protocol has a **700 KB UTF-8 record snapshot limit**, excluding photos. Exceeding the limit retains local records and displays an error. Larger workspaces require a tested per-record protocol before activation for those datasets.
+Firebase Rules restrict this exact path to the matching UID, validate the envelope, require server timestamps and sequential revisions, prohibit deletion, and deny all other paths.
+JSON business fields are validated by the client; rules cannot parse the JSON payload. A signed-in account can modify its own data. No collaborator/admin roles are granted.
 
-## Pending console setup
-1. Obtain authenticated access to the existing project through the official Firebase integration or secure browser sign-in. Never collect passwords in chat or commit administrative credentials.
-2. Inspect actual Cloud Firestore status. If absent, create the default database with Standard edition, production/locked mode, preferably us-central1 when available and free-compatible.
-3. Review and test `firestore.rules`, publish the rules, and verify active enforcement before uploading customer data. A repository rules file is not evidence of publication.
-4. Inspect Authentication users to confirm an owner account. Any password creation is completed securely by the owner.
-5. Review authorized domains and add `pd3-premium-preview.onrender.com` if needed.
-6. Test with synthetic records before offering real-record migration.
+## User behavior after activation
+Settings contains P&D email/password sign-in and account creation, separate from Google Console login.
+Opening cloud records is opt-in; browser-only `pd3_preview_records_v1` remains intact.
+Account caches, drafts, and local photo databases are partitioned by UID.
+No photo bytes are sent to Firebase. Another device needs its own local photos or a full backup restore.
+Existing guest records can be exported, reviewed, and copied once to an empty cloud workspace. Original guest records/photos remain intact.
+Offline changes persist locally and retry upon reconnect. Concurrent changes pause saving, retain device records, and offer export plus opening the latest cloud snapshot. No automatic last-write-wins replacement.
+Simultaneous tabs pause synchronization and save conflict copies under account-specific keys.
+Sign-out restores guest records without deleting account pending changes.
+Full backups include records, local photo bytes, and the active local draft; restore downloads the previous full backup first and requires explicit approval before replacement. Legacy record-only backups remain supported.
+A backup only includes photos on that device; it cannot recover another device's missing images.
 
-## Source review — October 13, 2026
-The branch head inspected was `5a28a788c58fbacf4e415d51dbfa31fabbefe676`.
-The public configuration file exists, but `index.html` does not load it or a Firebase SDK.
-No Firebase cloud adapter is wired into the app. Records still use `pd3_preview_records_v1`.
+## Required activation checks
+1. Verify the existing default Firestore database is Standard and project billing remains Spark.
+2. Publish the exact current `firestore.rules`, verify active enforcement, and retain deny-all until then. A GitHub file is not evidence of publication.
+3. Verify Email/Password enabled. The owner can create a P&D account privately in the app after activation. Do not reuse or request Google passwords.
+4. Review authorized domain `pd3-premium-preview.onrender.com` and restrict the public web API key to required Firebase APIs; never enable Gemini or paid unrelated APIs on this key.
+5. Use synthetic accounts/records to test real-project sign-in/out, own-account reads/writes, cross-account rejection, two-device sync, offline conflict recovery, payments, and backup restore.
+6. Only after these pass, enable the cloud flag and manually deploy the isolated P&D 3.0 service. Offer the owner export/recovery review before importing real records.
 
-The prepared rules restrict supported paths to the matching authenticated UID and deny other paths.
-Their collection allowlist currently covers clients, projects, estimates, invoices, payments, and settings.
-The app also contains templates, feedback, businessProfile, and potentially other top-level fields.
-Resolve those mappings and test the rules before integration; do not silently omit business records.
-
-Clients, projects, and documents mostly use array positions rather than stable record IDs.
-Estimate-to-invoice links include numeric `sourceEstimate` positions. Assign persistent IDs and preserve or translate links explicitly during an owner-approved migration; array positions cannot be cross-device identities.
-Payments are nested in invoices and include balance/credit behavior that must survive synchronization.
-
-Photos are stored separately in IndexedDB `pd3-preview-document-images`; document blocks hold local photo references.
-The current JSON record export does not contain those image bytes. Explain this clearly and test photo backup/recovery separately.
-Never upload image bytes to Firebase automatically. Preserve local attachments and PDF workflows.
-
-## Migration and synchronization requirements
-- Offer export first, review all existing fields, and test restore before migration.
-- Leave the original local record snapshot intact; no automatic upload or overwrite on sign-in.
-- Partition account caches and pending changes by UID; do not display another account's records.
-- Preserve every supported business record, custom document field, payment entry, and local photo reference.
-- Use stable IDs and idempotent writes to avoid duplicate records.
-- Handle concurrent edits and stale offline changes explicitly; do not silently replace newer remote records.
-- Show truthful local-save, pending, cloud-saved, offline, and error states.
-- Test sign-in/out, client and project CRUD, documents and payments, two-device sync, offline recovery, export/restore, and security rejection cases.
-- Keep the existing premium navigation, dashboard, 50/50 default payment terms, and Letter PDF pagination.
-- Run `tests/pd3-qa.cjs`, then manually deploy only P&D 3.0 after all required checks pass.
-
-## Work session verification
-GitHub access and the isolated Render service configuration were verified.
-The live premium dashboard was inspected; no app redesign was made.
-All 23 checked JavaScript/inline sources passed syntax checks, and record/photo key isolation checks passed.
-Full local browser QA could not run: the installed Playwright runtime lacked its browser executable and the browser download returned an invalid archive.
-Firebase Console redirected to Google sign-in, which returned 502 Connection refused in the cloud browser, including after one reload.
-An official Firebase integration was found and offered; its connection is pending.
-Firestore creation, active rules, owner account, cloud integration, and end-to-end synchronization remain unverified.
-No customer data was uploaded, no Firebase resources were deleted, and no Render deployment was triggered.
+## Validation
+`node tests/pd3-cloud-core.cjs`: lossless record/payment round trips, stale offline conflict, idempotent retry, photo exclusion, byte limits, backup validation.
+`node tests/pd3-cloud-qa.cjs`: browser adapter tests using a synthetic SDK/transport; no connection to the live Firebase project.
+`npx -y firebase-tools@latest emulators:exec --config firebase.pd3-emulators.json --only firestore --project demo-pd3-rules 'node tests/pd3-firestore-rules.cjs'`: actual Standard Firestore emulator security-rule tests, Java 21 required.
+`node tests/pd3-qa.cjs`: premium desktop/iPhone design, estimates, invoice editing, payments, and long US Letter PDF pagination.
+`PD3_CHROMIUM_EXECUTABLE` optionally selects an installed browser for local QA; CI downloads its pinned browser.
+These local checks do not prove live Firebase is configured. Production activation remains pending.

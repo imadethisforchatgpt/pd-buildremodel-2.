@@ -5,7 +5,7 @@ const escape=s=>window.PDBlocks.escape(s);
 let blocks=[];
 let editing=null;
 const imgDB=()=>new Promise((resolve,reject)=>{
- const req=indexedDB.open('pd3-preview-document-images',1);
+ const req=indexedDB.open(window.PD3Cloud?.photoDB()||'pd3-preview-document-images',1);
  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('images'))req.result.createObjectStore('images')};
  req.onsuccess=()=>resolve(req.result);
  req.onerror=()=>reject(req.error);
@@ -128,13 +128,13 @@ window.PDEditor={add,addPhoto,hydrate,loadPhoto};
 
 /* Draft recovery stores text, calculations, and photo references.
    Actual photos remain in the same browser's IndexedDB in test mode. */
-const DRAFT_KEY='pd3_preview_estimate_draft_v1';
+const draftStorageKey=()=>window.PD3Cloud?.draftKey()||'pd3_preview_estimate_draft_v1';
 let draftTimer=null,restoringDraft=false;
 function saveWorkingDraft(){
  if(restoringDraft||editingEstimateIndex!==null||!document.getElementById('pdBlockEditor'))return;
  try{
   const x=draftData();
-  localStorage.setItem(DRAFT_KEY,JSON.stringify({version:1,savedAt:new Date().toISOString(),estimate:x}));
+  localStorage.setItem(draftStorageKey(),JSON.stringify({version:1,savedAt:new Date().toISOString(),estimate:x}));
   const note=document.getElementById('pdBlocksState');if(note)note.textContent='Draft saved on this device';
  }catch(error){
   const note=document.getElementById('pdBlocksState');if(note)note.textContent='Draft not saved: browser storage is unavailable';
@@ -149,7 +149,7 @@ const priorForm=estimateForm;
 estimateForm=function(){
  priorForm();
  if(editingEstimateIndex!==null)return;
- let entry;try{entry=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null')}catch(_){}
+ let entry;try{entry=JSON.parse(localStorage.getItem(draftStorageKey())||'null')}catch(_){}
  const saved=entry?.estimate;if(!saved)return;
  restoringDraft=true;
  try{
@@ -173,7 +173,7 @@ saveEstimate=function(){
  priorSave();
  if(!document.getElementById('pdBlockEditor')){
   clearTimeout(draftTimer);
-  try{localStorage.removeItem(DRAFT_KEY)}catch(_){}
+  try{localStorage.removeItem(draftStorageKey())}catch(_){}
  }
 };
 

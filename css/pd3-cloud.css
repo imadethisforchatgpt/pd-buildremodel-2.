@@ -1,0 +1,4 @@
+.pd3-cloud-status{position:static;display:block;margin:16px 0 0 auto;border:1px solid #d4e3ed;background:#fff;color:#12395b;border-radius:24px;padding:9px 14px;box-shadow:0 3px 16px #12395b12;font:600 12px system-ui;cursor:pointer;max-width:calc(100vw - 36px)}
+.pd3-cloud-panel{border-top:3px solid #267b94}.pd3-cloud-panel label{display:block;margin-top:12px}.pd3-cloud-panel input{width:100%;box-sizing:border-box}.pd3-cloud-panel .actions{flex-wrap:wrap}.pd3-cloud-panel [role=status]{white-space:pre-wrap;line-height:1.5}.pd3-cloud-panel .pd3-cloud-warning{color:#854f12;background:#fff8eb;padding:12px;border-radius:10px}.pd3-cloud-panel button:disabled{opacity:.5}
+@media(max-width:800px){.pd3-cloud-status{font-size:11px;margin:12px auto}}
+@media print{.pd3-cloud-status,.pd3-cloud-panel{display:none!important}}

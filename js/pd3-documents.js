@@ -27,7 +27,7 @@
 
   function restoredDraftName() {
     try {
-      const raw = localStorage.getItem('pd3_preview_estimate_draft_v1');
+      const raw = localStorage.getItem(window.PD3Cloud?.draftKey() || 'pd3_preview_estimate_draft_v1');
       const draft = raw && JSON.parse(raw);
       return typeof draft?.estimate?.preparedBy === 'string' ? draft.estimate.preparedBy : null;
     } catch (_) {return null;}
