@@ -4,6 +4,7 @@
   const C = window.PD3CloudCore;
   let sdk, auth, firestore, user, activeUid = '', cache, remote, unsubscribe;
   let busy = false, conflict = false, editorDirty = false, timer, session = 0;
+  let firebasePromise, autoOpening = false;
   let message = 'Saved on this device · Cloud not connected';
   const uid = () => crypto.randomUUID();
   const cacheKey = id => 'pd3_cloud_workspace_v1_' + id;
@@ -41,23 +42,36 @@
   };
   async function firebase() {
     if (window.PD3_FIREBASE_CLOUD_ENABLED !== true) throw Error('Cloud activation is pending verified Firebase rules. Local records and full backups are available.');
-    if (sdk) return;
-    const version = '12.4.0';
-    const [app, a, f] = await Promise.all([
-      import('https://www.gstatic.com/firebasejs/' + version + '/firebase-app.js'),
-      import('https://www.gstatic.com/firebasejs/' + version + '/firebase-auth.js'),
-      import('https://www.gstatic.com/firebasejs/' + version + '/firebase-firestore.js')
-    ]);
-    const instance = app.initializeApp(window.PD3_FIREBASE_CONFIG, 'pd3-workspace');
-    sdk = {...a,...f}; auth = a.getAuth(instance); firestore = f.getFirestore(instance);
-    // Session auth: deliberately avoid saving passwords or persistent sign-in on shared devices.
-    await a.setPersistence(auth, a.browserSessionPersistence);
-    await new Promise(resolve => {const off = a.onAuthStateChanged(auth, value => {user = value; off(); resolve();});});
-    a.onAuthStateChanged(auth, value => {
-      user = value;
-      if (activeUid && (!value || value.uid !== activeUid)) leaveWorkspace();
-      panel();
-    });
+    if (firebasePromise) return firebasePromise;
+    firebasePromise = (async () => {
+      const version = '12.4.0';
+      const [app, a, f] = await Promise.all([
+        import('https://www.gstatic.com/firebasejs/' + version + '/firebase-app.js'),
+        import('https://www.gstatic.com/firebasejs/' + version + '/firebase-auth.js'),
+        import('https://www.gstatic.com/firebasejs/' + version + '/firebase-firestore.js')
+      ]);
+      const instance = app.initializeApp(window.PD3_FIREBASE_CONFIG, 'pd3-workspace');
+      sdk = {...a,...f}; auth = a.getAuth(instance); firestore = f.getFirestore(instance);
+      // Remember sign-in on this device; never store the password.
+      await a.setPersistence(auth, a.browserLocalPersistence);
+      await new Promise(resolve => {const off = a.onAuthStateChanged(auth, value => {user = value; off(); resolve();});});
+      a.onAuthStateChanged(auth, value => {
+        user = value;
+        if (activeUid && (!value || value.uid !== activeUid)) leaveWorkspace();
+        panel();
+        if (value && !activeUid) autoOpenForExistingUser(value);
+      });
+    })();
+    try {await firebasePromise;} catch(e) {firebasePromise = null; throw e;}
+  }
+  async function autoOpenForExistingUser(account) {
+    // Only resume a cloud workspace explicitly opened on this device before.
+    // Browser-only guest records are never merged or uploaded automatically.
+    if (autoOpening || activeUid || !localStorage.getItem(cacheKey(account.uid))) return;
+    autoOpening = true;
+    try {await openWorkspace(true);}
+    catch(e) {report('Cloud reconnect needs attention · ' + friendly(e));}
+    finally {autoOpening = false;}
   }
   function ref() {return sdk.doc(firestore,'users',activeUid,'settings','workspace-v1');}
   function listen(token) {
@@ -84,11 +98,11 @@
       report('Cloud update waiting · Finish editing, then open Settings');
     }
   }
-  async function openWorkspace() {
+  async function openWorkspace(automatic = false) {
     if (!user) throw Error('Sign in first.');
     if (activeUid) return;
     if (formOpen()) throw Error('Save or leave your current editor before opening cloud records.');
-    if (!confirm('Open your account’s cloud workspace? Browser-only records will stay separate. Nothing will be uploaded automatically.')) return;
+    if (!automatic && !confirm('Open your account’s cloud workspace? Browser-only records will stay separate. Nothing will be uploaded automatically.')) return;
     const prior = db, id = user.uid, token = ++session;
     activeUid = id;
     try {
@@ -265,4 +279,12 @@
     input.value = '';
   };
   report(message); panel(); document.getElementById('main')?.appendChild(status);
+  // Resume existing cloud sessions after a normal page refresh or app reopening.
+  // Cloud data remains separate from browser-only guest records.
+  if (window.PD3_FIREBASE_CLOUD_ENABLED === true) {
+    report('Checking your cloud sign-in…');
+    firebase().then(() => {
+      if (!user && !activeUid) report('Saved on this device · Cloud not connected');
+    }).catch(e => report('Cloud sign-in needs attention · ' + friendly(e)));
+  }
 })();
