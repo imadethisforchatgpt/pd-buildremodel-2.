@@ -75,10 +75,35 @@ async function wait(test,label){for(let i=0;i<60;i++){if(await test())return;awa
   const exported=JSON.parse(fs.readFileSync(await download.path(),'utf8'));
   assert.equal(exported.pd3BackupVersion,1);assert.equal(exported.records.clients[0].name,'Original browser-only customer');
   assert.equal(exported.photos['photo-local-1'],'data:image/jpeg;base64,AAAA');
+  await a.page.evaluate(()=>localStorage.setItem('pd3_preview_estimate_draft_v1',JSON.stringify({estimate:{client:'Old draft'}})));
   const restored={...exported,records:{...exported.records,clients:[{name:'Restored customer'}]}};
   await a.page.locator('#pd3CloudRestore').setInputFiles({name:'synthetic-backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(restored))});
   await wait(()=>a.page.evaluate(()=>db.clients[0]?.name==='Restored customer'),'full backup restore');
+  assert.equal(await a.page.evaluate(()=>localStorage.getItem('pd3_preview_estimate_draft_v1')),null,'Full backup with no draft clears stale draft');
   assert.equal(JSON.parse(cloud.payload).clients[0].notes,'Newer online edit','Guest restore does not overwrite cloud');
+  // Exercise actual client/project forms and imported legacy payment totals.
+  await a.page.evaluate(()=>go('Clients'));
+  await a.page.locator('#cname').fill('Sweep customer');
+  await a.page.locator('#cemail').fill('customer@example.test');
+  await a.page.evaluate(()=>addClient());
+  await a.page.evaluate(()=>pdEditClient(1));
+  await a.page.locator('#cnotes').fill('Edited customer notes');
+  await a.page.evaluate(()=>addClient());
+  assert.equal(await a.page.evaluate(()=>db.clients[1].notes),'Edited customer notes');
+  await a.page.evaluate(()=>go('Projects'));
+  await a.page.locator('#pname').fill('Sweep cabinetry');
+  await a.page.locator('#pclient').fill('Sweep customer');
+  await a.page.evaluate(()=>addProject());
+  await a.page.evaluate(()=>pdEditProject(0));
+  await a.page.locator('#ptasks').fill('Install cabinet doors');
+  await a.page.evaluate(()=>addProject());
+  assert.equal(await a.page.evaluate(()=>db.projects[0].tasks),'Install cabinet doors');
+  await a.page.evaluate(()=>{db.invoices=[{client:'Legacy customer',total:100,paid:40,payments:[]}];save();go('Invoices');payment(0)});
+  await a.page.locator('#pdReceivedAmount').fill('10.00');
+  await a.page.locator('#pdReceivedMethod').selectOption('Cash');
+  await a.page.locator('#pdRecordPaymentForm button[type=submit]').click();
+  assert.equal(await a.page.evaluate(()=>db.invoices[0].paid),50,'Existing paid total survives first detailed payment');
+  assert.equal(await a.page.evaluate(()=>db.invoices[0].paymentOpeningBalance),40);
   console.log('PASS: browser opt-in, guest isolation, cross-device records/payments, offline conflict retention, sign-out isolation, full backup download');
  } finally {await browser.close();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exit(1)});

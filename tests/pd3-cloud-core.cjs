@@ -18,3 +18,6 @@ assert.throws(()=>C.validate(JSON.parse('{"clients":[],"estimates":[],"invoices"
 assert.throws(()=>C.decode({...cloud,revision:'2'}),/Unsupported/);
 assert.throws(()=>C.validate({clients:[]}),/Invalid estimates/);
 console.log('PASS: lossless records/payments, offline conflicts, idempotent retry, photo exclusion, byte limits, backup validation');
+
+assert.throws(()=>C.validate({...C.empty(),clients:[null]}),/Invalid clients record/);
+assert.throws(()=>C.validate({...C.empty(),projects:{}}),/Invalid projects records/);

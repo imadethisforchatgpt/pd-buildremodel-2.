@@ -27,7 +27,10 @@
   }
   const originalSave = save;
   save = function() {
-    if (!activeUid) {originalSave(); report('Saved on this device · Cloud not connected'); return;}
+    if (!activeUid) {
+      try {originalSave();} catch(e) {report('NOT SAVED · Browser storage is full or unavailable'); throw e;}
+      report('Saved on this device · Cloud not connected'); return;
+    }
     const data = C.validate(JSON.parse(JSON.stringify(db)));
     const prior = cache;
     cache = {...cache, data, pending:true, mutationId:uid()};
@@ -216,7 +219,10 @@
     await putPhotos(images);
     const prior = db; db = data;
     try {save();} catch(e) {db = prior; throw e;}
-    if (value.draft) localStorage.setItem(draftKey(),JSON.stringify(value.draft));
+    if (Object.prototype.hasOwnProperty.call(value,'draft')) {
+      if (value.draft) localStorage.setItem(draftKey(),JSON.stringify(value.draft));
+      else localStorage.removeItem(draftKey());
+    }
     render(); report(activeUid ? 'Backup restored on device · Cloud save pending' : 'Full device backup restored');
   }
   function panel() {
@@ -252,7 +258,11 @@
   });
   window.addEventListener('offline', () => {if (activeUid) report('Offline · Records retained on this device');});
   window.addEventListener('beforeunload', e => {if (busy || cache?.pending || editorDirty) {e.preventDefault(); e.returnValue = '';}});
-  // Legacy record-only import remains available for guest mode, never bypass cloud backup review.
-  const formerImport = importData; importData = function(input) {if (activeUid) {report('Use Restore backup in Cloud account & backup for this account.'); input.value = ''; return;} formerImport(input);};
+  // Route every restore entry point through validation and a pre-restore backup.
+  importData = async function(input) {
+    const file = input.files?.[0]; if (!file) return;
+    try {await restore(file);} catch(error) {report('Restore failed · ' + friendly(error));}
+    input.value = '';
+  };
   report(message); panel(); document.getElementById('main')?.appendChild(status);
 })();

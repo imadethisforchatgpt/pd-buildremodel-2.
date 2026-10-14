@@ -8,6 +8,12 @@
     for (const key of ['clients','estimates','invoices','templates','feedback']) {
       if (!Array.isArray(value[key])) throw Error('Invalid ' + key + ' records');
     }
+    if (value.projects !== undefined && !Array.isArray(value.projects)) throw Error('Invalid projects records');
+    for (const key of collections) {
+      for (const record of value[key] || []) {
+        if (!record || typeof record !== 'object' || Array.isArray(record)) throw Error('Invalid ' + key + ' record');
+      }
+    }
     function visit(v) {
       if (typeof v === 'string' && /^data:image\//i.test(v)) throw Error('Photo bytes must stay on this device');
       if (v && typeof v === 'object') for (const [k,x] of Object.entries(v)) {

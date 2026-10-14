@@ -11,7 +11,12 @@ function totalReceived(x){
  return Math.round((legacy+records(x).reduce((a,p)=>a+(Number(p.amount)||0),0))*100)/100;
 }
 function ensureLedger(x){
- if(!Array.isArray(x.payments)){x.paymentOpeningBalance=Number(x.paid)||0;x.payments=[]}
+ if(!Array.isArray(x.payments))x.payments=[];
+ // Older backups can have a paid total with an empty or partial ledger.
+ if(x.paymentOpeningBalance == null){
+  const tracked=records(x).reduce((sum,p)=>sum+(Number(p.amount)||0),0);
+  x.paymentOpeningBalance=Math.max(0,Math.round(((Number(x.paid)||0)-tracked)*100)/100);
+ }
 }
 function summary(x){
  const paid=cents(x.paid||0),total=cents(x.total||0);
