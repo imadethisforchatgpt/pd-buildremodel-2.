@@ -88,7 +88,18 @@
   function accept(value) {
     if (!value) {remote = null; return;}
     const data = C.decode(value); remote = value;
-    if (busy) return;
+    if (busy || !cache) return;
+    // Never silently roll back a newer verified device snapshot.
+    if (value.revision < cache.revision) {
+      conflict = true;
+      report('Cloud copy is older · Device records retained · Open Settings');
+      return;
+    }
+    // Metadata-only Firebase notifications must not redraw or discard an open screen.
+    if (!cache.pending && value.revision === cache.revision) {
+      report('Saved in cloud · Photos stay on this device');
+      return;
+    }
     if (!cache.pending && !formOpen()) {
       cache = {data,revision:value.revision,pending:false}; persist(); db = data;
       render(); report('Saved in cloud · Photos stay on this device');
@@ -108,24 +119,36 @@
     try {
       cache = readCache(id);
       if (!navigator.onLine && !cache) throw Error('Connect once before opening this account offline.');
+      let serverChecked = false;
       if (navigator.onLine) {
-        const snap = await sdk.getDocFromServer(ref());
-        if (token !== session) return;
-        remote = snap.exists() ? snap.data() : null;
-        if (remote) C.decode(remote);
-        if (!cache) cache = {data:remote ? C.decode(remote) : C.empty(),revision:remote?.revision || 0,pending:false};
+        try {
+          const snap = await sdk.getDocFromServer(ref());
+          if (token !== session) return;
+          remote = snap.exists() ? snap.data() : null;
+          if (remote) C.decode(remote);
+          if (!cache) cache = {data:remote ? C.decode(remote) : C.empty(),revision:remote?.revision || 0,pending:false};
+          serverChecked = true;
+        } catch (error) {
+          // A temporary Firestore outage must not hide an intact local cloud cache.
+          // Never treat an unreachable database as an empty database.
+          if (!cache) throw error;
+          remote = null;
+        }
       }
       db = cache.data; persist(); conflict = false; go('Dashboard');
       if (navigator.onLine) {
-        if (cache.pending && remote && remote.mutationId === cache.mutationId) {
-          cache = {data:C.decode(remote),revision:remote.revision,pending:false}; persist(); db = cache.data;
+        if (serverChecked) {
+          if (cache.pending && remote && remote.mutationId === cache.mutationId) {
+            cache = {data:C.decode(remote),revision:remote.revision,pending:false}; persist(); db = cache.data;
+          }
+          if (remote && remote.revision < cache.revision) conflict = true;
+          if (cache.pending && (remote?.revision || 0) !== cache.revision) conflict = true;
+          if (remote && !conflict) accept(remote);
         }
-        if (cache.pending && (remote?.revision || 0) !== cache.revision) conflict = true;
-        if (remote) accept(remote);
         listen(token);
       }
-      report(conflict ? 'Sync conflict · Both copies retained · Open Settings' : cache.pending ? 'Saved on device · Cloud changes pending' : navigator.onLine ? 'Cloud workspace open · Photos stay on this device' : 'Offline · Account records on this device');
-      panel(); if (cache.pending) flush();
+      report(conflict ? 'Sync conflict · Both copies retained · Open Settings' : !navigator.onLine ? 'Offline · Account records on this device' : !serverChecked ? 'Cloud unavailable · Safe device copy loaded' : cache.pending ? 'Saved on device · Cloud changes pending' : 'Cloud workspace open · Photos stay on this device');
+      panel(); if (cache.pending && serverChecked && !conflict) flush();
     } catch(e) {activeUid = ''; cache = null; db = prior; ++session; throw e;}
   }
   async function flush() {
@@ -260,7 +283,10 @@
   }
   // Account-local drafts and photos retain the original guest storage unchanged.
   const formerRender = render; render = function() {formerRender(); panel(); document.getElementById('main')?.appendChild(status);};
-  const formerGo = go; go = function(t) {editorDirty = false; formerGo(t);};
+  const formerGo = go; go = function(t) {
+    if (editorDirty && tab !== t && !confirm('You have unsaved changes on this screen. Leave without saving them?')) return;
+    editorDirty = false; formerGo(t);
+  };
   document.addEventListener('input', e => {if (activeUid && e.target.closest('#main') && !e.target.closest('#pd3CloudPanel')) editorDirty = true;});
   window.addEventListener('online', () => {if (activeUid) {listen(session); report('Online · Checking pending saves'); flush();}});
   const tabIdentity = uid();
