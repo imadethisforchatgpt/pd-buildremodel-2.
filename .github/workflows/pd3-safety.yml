@@ -1,0 +1,26 @@
+name: P&D 3.0 safety checks
+on:
+  push:
+    branches:
+      - feature/pd3-premium-experience
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pd3-cloud-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check P&D 3.0 JavaScript syntax
+        run: |
+          node --check js/pd3-cloud.js
+          node --check js/pd3-cloud-core.js
+          node --check js/pd3-firebase-config.js
+      - name: Run cloud data safety regression tests
+        run: node --test tests/pd3-safety.test.cjs
