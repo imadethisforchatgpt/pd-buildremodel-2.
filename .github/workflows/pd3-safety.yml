@@ -4,6 +4,9 @@ on:
     branches:
       - feature/pd3-premium-experience
   workflow_dispatch:
+  pull_request:
+    branches:
+      - backup/pd3-before-safety-audit-2026-10-14
 permissions:
   contents: read
 jobs:
@@ -22,8 +25,8 @@ jobs:
           node --check js/pd3-cloud.js
           node --check js/pd3-cloud-core.js
           node --check js/pd3-firebase-config.js
-      - name: Run cloud data safety regression tests
-        run: node --test tests/pd3-safety.test.cjs
+      - name: Run cloud data safety and recovery regression tests
+        run: node --test tests/pd3-safety.test.cjs tests/pd3-cloud-recovery.test.cjs
       - name: Install Java for isolated Firestore emulator
         uses: actions/setup-java@v4
         with:
