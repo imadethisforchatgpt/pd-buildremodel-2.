@@ -26,7 +26,7 @@ jobs:
           node --check js/pd3-cloud-core.js
           node --check js/pd3-firebase-config.js
       - name: Run cloud data safety and recovery regression tests
-        run: node --test tests/pd3-safety.test.cjs tests/pd3-cloud-recovery.test.cjs
+        run: node --test tests/pd3-safety.test.cjs tests/pd3-cloud-recovery.test.cjs tests/pd3-estimate-lifecycle.test.cjs
       - name: Install Java for isolated Firestore emulator
         uses: actions/setup-java@v4
         with:
