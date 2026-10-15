@@ -31,7 +31,7 @@
     const invoiceIndex = workspace.invoices.length;
     const time = timestamp || new Date().toISOString();
     const invoice = {
-      ...source,
+      ...JSON.parse(JSON.stringify(source)),
       sourceEstimate: index,
       paid: 0,
       payments: [],
