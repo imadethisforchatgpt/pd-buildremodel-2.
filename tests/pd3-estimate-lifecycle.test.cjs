@@ -22,7 +22,7 @@ const workspace = () => ({
 
 test('conversion removes only the target from active estimates without deleting records',()=>{
   const db=workspace();
-  const idx=lifecycle.convert(db,1,()=>{});
+  const idx=lifecycle.convert(db,1,()=>{},'2026-10-14T18:00:00.000Z');
   assert.equal(idx,0);
   assert.deepEqual(lifecycle.active(db).map(x=>x.index),[0,2]);
   assert.equal(db.estimates.length,3,'preserve numbering and audit history');
