@@ -78,10 +78,11 @@
   function recentActivity() {
     const records = [];
     (db.estimates || []).forEach(function (x, i) {
-      if (window.PD3EstimateLifecycle?.isConverted(db, i)) return;
+      if (x.deletedAt || window.PD3EstimateLifecycle?.isConverted(db, i)) return;
       records.push({type: 'Estimate', person: x.client, description: x.description, amount: x.total, date: x.date || '', index: i});
     });
     (db.invoices || []).forEach(function (x, i) {
+      if (x.deletedAt) return;
       records.push({type: 'Invoice', person: x.client, description: x.description, amount: x.total, date: x.invoiceDate || x.date || '', index: i});
     });
     records.sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
@@ -106,7 +107,7 @@
     const root = document.getElementById('main');
     const estimates = window.PD3EstimateLifecycle ?
       window.PD3EstimateLifecycle.active(db).map(function (item) { return item.estimate; }) :
-      (db.estimates || []), invoices = db.invoices || [], clients = db.clients || [];
+      (db.estimates || []), invoices = (db.invoices || []).filter(function(x){return !x.deletedAt;}), clients = db.clients || [];
     const quoteAmount = estimates.reduce(function (s, x) { return s + (Number(x.total) || 0); }, 0);
     const billed = invoices.reduce(function (s, x) { return s + (Number(x.total) || 0); }, 0);
     const paid = invoices.reduce(function (s, x) { return s + Math.max(0, Number(x.paid) || 0); }, 0);

@@ -16,7 +16,7 @@
 
   function active(workspace) {
     return (workspace?.estimates || []).flatMap((estimate, index) =>
-      !isConverted(workspace, index) ? [{estimate, index}] : []);
+      !estimate.deletedAt && !isConverted(workspace, index) ? [{estimate, index}] : []);
   }
 
   function convert(workspace, index, persist, timestamp) {
@@ -24,6 +24,7 @@
         !Array.isArray(workspace.invoices)) {
       throw Error('The selected estimate could not be found.');
     }
+    if (workspace.estimates[index].deletedAt) throw Error("Restore this estimate before converting it.");
     if (isConverted(workspace, index)) {
       throw Error('This estimate is already an invoice. Find it in Invoices.');
     }

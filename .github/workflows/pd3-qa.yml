@@ -76,7 +76,9 @@ jobs:
           done
           exit 1
       - name: Run desktop, mobile, invoice PDF and workflow checks
-        run: node tests/pd3-qa.cjs
+        run: |
+          node tests/pd3-qa.cjs
+          node tests/pd3-delete.cjs
       - name: Upload P&D 3.0 PDF and design samples
         uses: actions/upload-artifact@v4
         if: always()
